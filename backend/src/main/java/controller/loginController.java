@@ -18,9 +18,16 @@ import java.util.Map;
 @WebServlet("/api/login")
 public class loginController extends HttpServlet{
 
-    private final userDao userDao = new userDaoSql();
+    private final userDao userDao;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    public loginController() {
+        this.userDao = new userDaoSql();
+    }
+
+    public loginController(userDao userDao) {
+        this.userDao = userDao;
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
