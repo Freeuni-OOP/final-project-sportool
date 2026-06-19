@@ -2,6 +2,7 @@ package model;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class user {
     private int id;
@@ -12,6 +13,7 @@ public class user {
 
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters long")
+    @JsonProperty("password")
     private String passwordHash;
     private String role; // PLAYER, COACH, ADMIN
 
