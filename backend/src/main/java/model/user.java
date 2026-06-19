@@ -3,7 +3,10 @@ package model;
 public class user {
     private int id;
     private String email;
+
+    @JsonProperty("password")
     private String passwordHash;
+
     private String role; // PLAYER, COACH, ADMIN
     private String fullName;
 
