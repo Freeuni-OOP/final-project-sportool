@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class courtDaoSql implements courtDao{
+public class CourtDaoSql implements CourtDao {
     @Override
     public List<Court> getCourtsByType(String type) {
         List<Court> courts = new ArrayList<>();

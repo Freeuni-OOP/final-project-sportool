@@ -1,8 +1,8 @@
 package controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dao.userDao;
-import model.user;
+import dao.UserDao;
+import model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,13 +21,13 @@ import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class registerControllerTest {
+public class RegisterControllerTest {
 
     @InjectMocks
-    private registerController controller;
+    private RegisterController controller;
 
     @Mock
-    private userDao userDao;
+    private UserDao userDao;
 
     @Mock
     private HttpServletRequest request;
@@ -45,21 +45,21 @@ public class registerControllerTest {
         responseWriter = new StringWriter();
         when(response.getWriter()).thenReturn(new PrintWriter(responseWriter));
 
-        Field field = registerController.class.getDeclaredField("userDao");
+        Field field = RegisterController.class.getDeclaredField("userDao");
         field.setAccessible(true);
         field.set(controller, userDao);
     }
 
     @Test
     public void testRegisterSuccess() throws Exception {
-        user validUser = new user();
+        User validUser = new User();
         validUser.setEmail("test@freeuni.edu.ge");
         validUser.setPasswordHash("secure123");
         validUser.setFullName("Giorgi Giorgadze");
 
         String json = objectMapper.writeValueAsString(validUser);
         when(request.getReader()).thenReturn(new BufferedReader(new StringReader(json)));
-        when(userDao.registerUser(any(user.class))).thenReturn(true);
+        when(userDao.registerUser(any(User.class))).thenReturn(true);
 
         controller.doPost(request, response);
 
@@ -70,7 +70,7 @@ public class registerControllerTest {
 
     @Test
     public void testRegisterValidationFailed() throws Exception {
-        user invalidUser = new user();
+        User invalidUser = new User();
         invalidUser.setEmail("test@freeuni.edu.ge");
         invalidUser.setPasswordHash("123");
         invalidUser.setFullName("Giorgi Giorgadze");

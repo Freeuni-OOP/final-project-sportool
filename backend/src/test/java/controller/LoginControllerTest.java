@@ -1,8 +1,8 @@
 package controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dao.userDao;
-import model.user;
+import dao.UserDao;
+import model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
@@ -17,10 +17,10 @@ import java.util.Map;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class loginControllerTest {
+public class LoginControllerTest {
 
-    private loginController controller;
-    private userDao mockUserDao;
+    private LoginController controller;
+    private UserDao mockUserDao;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private StringWriter responseWriter;
@@ -28,8 +28,8 @@ public class loginControllerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        mockUserDao = Mockito.mock(userDao.class);
-        controller = new loginController(mockUserDao);
+        mockUserDao = Mockito.mock(UserDao.class);
+        controller = new LoginController(mockUserDao);
 
         request = Mockito.mock(HttpServletRequest.class);
         response = Mockito.mock(HttpServletResponse.class);
@@ -47,7 +47,7 @@ public class loginControllerTest {
         String json = "{\"email\":\"test@test.com\",\"password\":\"1234\"}";
         when(request.getReader()).thenReturn(new BufferedReader(new StringReader(json)));
 
-        user fakeUser = new user(1, "test@test.com", hashedPassword, "PLAYER", "Test User");
+        User fakeUser = new User(1, "test@test.com", hashedPassword, "PLAYER", "Test User");
         when(mockUserDao.getUserByEmail("test@test.com")).thenReturn(fakeUser);
 
         controller.doPost(request, response);
@@ -80,7 +80,7 @@ public class loginControllerTest {
         String json = "{\"email\":\"test@test.com\",\"password\":\"wrongpassword\"}";
         when(request.getReader()).thenReturn(new BufferedReader(new StringReader(json)));
 
-        user fakeUser = new user(1, "test@test.com", hashedPassword, "PLAYER", "Test User");
+        User fakeUser = new User(1, "test@test.com", hashedPassword, "PLAYER", "Test User");
         when(mockUserDao.getUserByEmail("test@test.com")).thenReturn(fakeUser);
 
         controller.doPost(request, response);
