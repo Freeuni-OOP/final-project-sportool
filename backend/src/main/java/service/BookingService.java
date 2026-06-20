@@ -6,8 +6,15 @@ import java.time.LocalDateTime;
 
 public class BookingService {
 
-    private final BookingDaoSql bookingDao = new BookingDaoSql();
+    private final BookingDaoSql bookingDao;
 
+    public BookingService() {
+        this.bookingDao = new BookingDaoSql();
+    }
+
+    public BookingService(BookingDaoSql bookingDao) {
+        this.bookingDao = bookingDao;
+    }
 
     public boolean makeBooking(Booking booking) {
         boolean isAvailable = bookingDao.isCourtAvailable(
