@@ -7,20 +7,29 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 25
+      - name: Set up Microsoft OpenJDK 25
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'temurin'
+          distribution: 'microsoft'
           cache: maven
 
-      - name: Build with Maven
-        run: mvn -B clean package -DskipTests
+      # Executes compilation, runs JUnit tests, and validates the 80% code coverage constraint via JaCoCo
+      - name: Build and Verify with Maven
+        run: mvn -B clean verify
         working-directory: backend
+
+      # Uploads the HTML coverage report as a build artifact (useful if coverage check fails)
+      - name: Upload JaCoCo Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: backend/target/site/jacoco/
