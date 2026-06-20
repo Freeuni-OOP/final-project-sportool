@@ -73,3 +73,5 @@ public class UserServiceTest {
         assertEquals("Registration failed. Email might already exist.", errorResult);
     }
 }
+public class UserServiceTest {
+}
