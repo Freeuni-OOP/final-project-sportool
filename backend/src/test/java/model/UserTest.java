@@ -11,7 +11,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class userTest {
+public class UserTest {
 
     private Validator validator;
 
@@ -23,55 +23,55 @@ public class userTest {
 
     @Test
     public void testValidUser() {
-        user u = new user();
+        User u = new User();
         u.setId(1);
         u.setEmail("test@freeuni.edu.ge");
         u.setPasswordHash("secure123");
         u.setFullName("Giorgi Giorgadze");
         u.setRole("PLAYER");
 
-        Set<ConstraintViolation<user>> violations = validator.validate(u);
+        Set<ConstraintViolation<User>> violations = validator.validate(u);
         assertTrue(violations.isEmpty());
     }
 
     @Test
     public void testInvalidEmail() {
-        user u = new user();
+        User u = new User();
         u.setEmail("invalid-email-format");
         u.setPasswordHash("secure123");
         u.setFullName("Giorgi");
         u.setRole("COACH");
 
-        Set<ConstraintViolation<user>> violations = validator.validate(u);
+        Set<ConstraintViolation<User>> violations = validator.validate(u);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void testShortPassword() {
-        user u = new user();
+        User u = new User();
         u.setEmail("test@freeuni.edu.ge");
         u.setPasswordHash("123");
         u.setFullName("Giorgi");
         u.setRole("ADMIN");
 
-        Set<ConstraintViolation<user>> violations = validator.validate(u);
+        Set<ConstraintViolation<User>> violations = validator.validate(u);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void testBlankFields() {
-        user u = new user();
+        User u = new User();
         u.setEmail("");
         u.setPasswordHash("   ");
         u.setFullName("");
 
-        Set<ConstraintViolation<user>> violations = validator.validate(u);
+        Set<ConstraintViolation<User>> violations = validator.validate(u);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void testParameterizedConstructorAndGetters() {
-        user u = new user(10, "coach@freeuni.edu.ge", "hashedPassword", "COACH", "Luka Luka");
+        User u = new User(10, "coach@freeuni.edu.ge", "hashedPassword", "COACH", "Luka Luka");
 
         assertEquals(10, u.getId());
         assertEquals("coach@freeuni.edu.ge", u.getEmail());
@@ -82,7 +82,7 @@ public class userTest {
 
     @Test
     public void testSetters() {
-        user u = new user();
+        User u = new User();
         u.setId(99);
         u.setEmail("admin@freeuni.edu.ge");
         u.setPasswordHash("adminPass123");

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class user {
+public class User {
     private int id;
 
     @NotBlank(message = "Email is required")
@@ -20,9 +20,9 @@ public class user {
     @NotBlank(message = "Full name is required")
     private String fullName;
 
-    public user() {}
+    public User() {}
 
-    public user(int id, String email, String passwordHash, String role, String fullName) {
+    public User(int id, String email, String passwordHash, String role, String fullName) {
         this.id = id;
         this.email = email;
         this.passwordHash = passwordHash;
