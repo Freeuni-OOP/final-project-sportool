@@ -1,7 +1,7 @@
 package dao;
 
 import config.DBConnection;
-import model.user;
+import model.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,9 +15,9 @@ import java.sql.SQLException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class userDaoTest {
+public class UserDaoTest {
 
-    private userDaoSql dao;
+    private UserDaoSql dao;
     private Connection mockConnection;
     private PreparedStatement mockStatement;
     private ResultSet mockResultSet;
@@ -27,7 +27,7 @@ public class userDaoTest {
     public void setUp() throws SQLException {
         System.setProperty("net.bytebuddy.experimental", "true");
 
-        dao = new userDaoSql();
+        dao = new UserDaoSql();
 
         mockConnection = mock(Connection.class);
         mockStatement = mock(PreparedStatement.class);
@@ -46,7 +46,7 @@ public class userDaoTest {
 
     @Test
     public void testRegisterUserSuccess() throws SQLException {
-        user u = new user(0, "test@freeuni.edu.ge", "password123", "PLAYER", "Giorgi");
+        User u = new User(0, "test@freeuni.edu.ge", "password123", "PLAYER", "Giorgi");
 
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
         when(mockStatement.executeUpdate()).thenReturn(1);
@@ -61,7 +61,7 @@ public class userDaoTest {
 
     @Test
     public void testRegisterUserFailure() throws SQLException {
-        user u = new user(0, "test@freeuni.edu.ge", "password123", "PLAYER", "Giorgi");
+        User u = new User(0, "test@freeuni.edu.ge", "password123", "PLAYER", "Giorgi");
 
         when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("Database error"));
 
@@ -84,7 +84,7 @@ public class userDaoTest {
         when(mockResultSet.getString("role")).thenReturn("COACH");
         when(mockResultSet.getString("full_name")).thenReturn("Luka Luka");
 
-        user foundUser = dao.getUserByEmail(email);
+        User foundUser = dao.getUserByEmail(email);
 
         assertNotNull(foundUser);
         assertEquals(7, foundUser.getId());
@@ -102,7 +102,7 @@ public class userDaoTest {
 
         when(mockResultSet.next()).thenReturn(false);
 
-        user foundUser = dao.getUserByEmail(email);
+        User foundUser = dao.getUserByEmail(email);
 
         assertNull(foundUser);
     }
