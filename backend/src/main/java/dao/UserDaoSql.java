@@ -1,6 +1,6 @@
 package dao;
 
-import model.user;
+import model.User;
 import config.DBConnection;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -9,10 +9,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class userDaoSql implements userDao {
+public class UserDaoSql implements UserDao {
 
     @Override
-    public boolean registerUser(user user) {
+    public boolean registerUser(User user) {
         String sql = "INSERT INTO users (email, password_hash, role, full_name) VALUES (?, ?, ?, ?)";
 
         String hashedPassword = BCrypt.hashpw(user.getPasswordHash(), BCrypt.gensalt());
@@ -35,7 +35,7 @@ public class userDaoSql implements userDao {
     }
 
     @Override
-    public user getUserByEmail(String email) {
+    public User getUserByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -44,7 +44,7 @@ public class userDaoSql implements userDao {
             stmt.setString(1, email);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return new user(
+                    return new User(
                             rs.getInt("id"),
                             rs.getString("email"),
                             rs.getString("password_hash"),

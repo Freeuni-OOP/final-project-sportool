@@ -16,9 +16,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class courtDaoTest {
+public class CourtDaoTest {
 
-    private courtDaoSql dao;
+    private CourtDaoSql dao;
     private Connection mockConnection;
     private PreparedStatement mockStatement;
     private ResultSet mockResultSet;
@@ -28,7 +28,7 @@ public class courtDaoTest {
     public void setUp() throws SQLException {
         System.setProperty("net.bytebuddy.experimental", "true");
 
-        dao = new courtDaoSql();
+        dao = new CourtDaoSql();
 
         mockConnection = mock(Connection.class);
         mockStatement = mock(PreparedStatement.class);

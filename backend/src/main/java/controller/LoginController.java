@@ -1,9 +1,9 @@
 package controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dao.userDao;
-import dao.userDaoSql;
-import model.user;
+import dao.UserDao;
+import dao.UserDaoSql;
+import model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,16 +16,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @WebServlet("/api/login")
-public class loginController extends HttpServlet{
+public class LoginController extends HttpServlet{
 
-    private final userDao userDao;
+    private final UserDao userDao;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public loginController() {
-        this.userDao = new userDaoSql();
+    public LoginController() {
+        this.userDao = new UserDaoSql();
     }
 
-    public loginController(userDao userDao) {
+    public LoginController(UserDao userDao) {
         this.userDao = userDao;
     }
 
@@ -36,11 +36,11 @@ public class loginController extends HttpServlet{
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        user userFromFrontend = objectMapper.readValue(request.getReader(), user.class);
+        User userFromFrontend = objectMapper.readValue(request.getReader(), User.class);
         String email = userFromFrontend.getEmail();
         String password = userFromFrontend.getPasswordHash();
 
-        user foundUser = userDao.getUserByEmail(email);
+        User foundUser = userDao.getUserByEmail(email);
 
         Map<String, Object> jsonResponse = new HashMap<>();
 

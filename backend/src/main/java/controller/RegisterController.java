@@ -1,9 +1,9 @@
 package controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dao.userDao;
-import dao.userDaoSql;
-import model.user;
+import dao.UserDao;
+import dao.UserDaoSql;
+import model.User;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.Set;
 
 @WebServlet("/api/register")
-public class registerController extends HttpServlet {
+public class RegisterController extends HttpServlet {
 
-    private final userDao userDao = new userDaoSql();
+    private final UserDao userDao = new UserDaoSql();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     private final Validator validator = factory.getValidator();
@@ -35,9 +35,9 @@ public class registerController extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        user userFromFrontend = objectMapper.readValue(request.getReader(), user.class);
+        User userFromFrontend = objectMapper.readValue(request.getReader(), User.class);
 
-        Set<ConstraintViolation<user>> violations = validator.validate(userFromFrontend);
+        Set<ConstraintViolation<User>> violations = validator.validate(userFromFrontend);
 
         Map<String, Object> jsonResponse = new HashMap<>();
 
