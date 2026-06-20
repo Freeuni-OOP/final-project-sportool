@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Container
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: sportool_postgres
+    environment:
+      POSTGRES_DB: sportool
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sportool-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sportool"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Jakarta EE Tomcat Backend Container
+  backend-app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sportool_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-db:5432/sportool
+      - DB_USER=postgres
+      - DB_PASSWORD=your_secure_password
+    depends_on:
+      postgres-db:
+        condition: service_healthy # Starts backend only after Postgres is fully up and running
+    networks:
+      - sportool-network
+
+volumes:
+  postgres_data:
+
+networks:
+  sportool-network:
+    driver: bridge
