@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 import org.mockito.Mockito;
+import service.LoginService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +30,8 @@ public class LoginControllerTest {
     @BeforeEach
     void setUp() throws Exception {
         mockUserDao = Mockito.mock(UserDao.class);
-        controller = new LoginController(mockUserDao);
+        LoginService loginService = new LoginService(mockUserDao);
+        controller = new LoginController(loginService);
 
         request = Mockito.mock(HttpServletRequest.class);
         response = Mockito.mock(HttpServletResponse.class);
