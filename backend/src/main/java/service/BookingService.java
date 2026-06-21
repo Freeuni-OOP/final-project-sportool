@@ -29,4 +29,5 @@ public class BookingService {
 
         return bookingDao.createBooking(booking);
     }
+
 }

@@ -32,7 +32,7 @@ export default function Login({ onAuthenticated }) {
     try {
       const response = await apiClient.login({
         email: formValues.email.trim(),
-        passwordHash: formValues.password,
+        password: formValues.password,
       });
 
       const session = saveAuthSession(response);

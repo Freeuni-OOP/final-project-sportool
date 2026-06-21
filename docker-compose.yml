@@ -35,7 +35,19 @@ services:
       - DB_PASSWORD=your_secure_password
     depends_on:
       postgres-db:
-        condition: service_healthy # Starts backend only after Postgres is fully up and running
+        condition: service_healthy
+    networks:
+      - sportool-network
+
+  frontend-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sportool_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend-app
     networks:
       - sportool-network
 

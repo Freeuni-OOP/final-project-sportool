@@ -2,26 +2,7 @@ const AUTH_STORAGE_KEY = 'sportool.auth';
 const TOKEN_STORAGE_KEY = 'sportool.authToken';
 
 function getDefaultApiBaseUrl() {
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL.replace(/\/$/, '');
-  }
-
-  if (typeof window === 'undefined') {
-    return 'http://localhost:8080/backend/api';
-  }
-
-  const { protocol, hostname, origin, pathname, port } = window.location;
-  const contextRoot = pathname.split('/').filter(Boolean)[0];
-
-  if (contextRoot === 'backend') {
-    return `${origin}/backend/api`;
-  }
-
-  if (port && port !== '8080') {
-    return `${protocol}//${hostname}:8080/backend/api`;
-  }
-
-  return `${origin}/backend/api`;
+  return 'http://localhost:8080/api';
 }
 
 export const API_BASE_URL = getDefaultApiBaseUrl();
