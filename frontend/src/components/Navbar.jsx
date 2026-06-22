@@ -5,9 +5,8 @@ import Button from './Button.jsx';
 const navLinks = [
   { label: 'Home', href: '#home' },
   { label: 'Courts', href: '#dashboard' },
-  { label: 'Tournaments', href: '#tournaments' },
+  { label: 'Matches', href: '#tournaments' },
   { label: 'Coaches', href: '#coaches' },
-  { label: 'Community', href: '#community' },
 ];
 
 export default function Navbar() {
@@ -55,9 +54,14 @@ export default function Navbar() {
             Sign Out
           </Button>
         ) : (
-          <Button href="#login" variant="outline" className="navbar__cta">
-            Sign In
-          </Button>
+          <div className="navbar__auth">
+            <Button href="#login" variant="outline" className="navbar__cta">
+              Sign In
+            </Button>
+            <Button href="#signup" className="navbar__cta">
+              Sign Up
+            </Button>
+          </div>
         )}
       </nav>
     </header>

@@ -51,9 +51,9 @@ public class UserDaoTest {
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
         when(mockStatement.executeUpdate()).thenReturn(1);
 
-        boolean result = dao.registerUser(u);
+        String result = dao.registerUser(u);
 
-        assertTrue(result);
+        assertNull(result);
         verify(mockStatement).setString(1, u.getEmail());
         verify(mockStatement).setString(3, u.getRole());
         verify(mockStatement).setString(4, u.getFullName());
@@ -65,9 +65,10 @@ public class UserDaoTest {
 
         when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("Database error"));
 
-        boolean result = dao.registerUser(u);
+        String result = dao.registerUser(u);
 
-        assertFalse(result);
+        assertNotNull(result);
+        assertTrue(result.contains("Database error"));
     }
 
     @Test

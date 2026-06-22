@@ -26,11 +26,15 @@ public class UserService {
             return violations.iterator().next().getMessage();
         }
 
-        boolean isSaved = userDao.registerUser(user);
-        if (!isSaved) {
-            return "Registration failed. Email might already exist.";
+        if (userDao.getUserByEmail(user.getEmail()) != null) {
+            return "Registration failed. Email already exists.";
         }
 
-        return null; 
+        String saveError = userDao.registerUser(user);
+        if (saveError != null) {
+            return saveError;
+        }
+
+        return null;
     }
 }

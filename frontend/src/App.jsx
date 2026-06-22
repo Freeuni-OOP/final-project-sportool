@@ -4,9 +4,10 @@ import Community from './pages/Community.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
+import SignUp from './pages/SignUp.jsx';
 import Tournaments from './pages/Tournaments.jsx';
 
-const routedPages = new Set(['login', 'dashboard', 'tournaments', 'coaches', 'community']);
+const routedPages = new Set(['login', 'signup', 'dashboard', 'tournaments', 'coaches', 'community']);
 
 function getCurrentPage() {
   const page = window.location.hash.replace('#', '').split('?')[0];
@@ -26,6 +27,7 @@ export default function App() {
   }, []);
 
   if (page === 'login') return <Login />;
+  if (page === 'signup') return <SignUp />;
   if (page === 'dashboard') return <Dashboard />;
   if (page === 'tournaments') return <Tournaments />;
   if (page === 'coaches') return <Coaches />;

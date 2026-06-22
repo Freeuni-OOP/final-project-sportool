@@ -3,7 +3,6 @@ const tickerItems = [
   'Book Court Now',
   'Find Your Rival',
   'Train After Dark',
-  'Community',
   'Elite Matchdays',
 ];
 

@@ -1,13 +1,10 @@
 const AUTH_STORAGE_KEY = 'sportool.auth';
-const TOKEN_STORAGE_KEY = 'sportool.authToken';
 
 function getDefaultApiBaseUrl() {
   return 'http://localhost:8080/api';
 }
 
 export const API_BASE_URL = getDefaultApiBaseUrl();
-export const API_CREDENTIALS_MODE =
-  import.meta.env.VITE_API_WITH_CREDENTIALS === 'true' ? 'include' : 'same-origin';
 
 export class ApiError extends Error {
   constructor(message, { status, data } = {}) {
@@ -27,27 +24,12 @@ export function getStoredAuth() {
   }
 }
 
-export function getAuthToken() {
-  return window.localStorage.getItem(TOKEN_STORAGE_KEY);
-}
-
 export function saveAuthSession(authResponse) {
-  const token =
-    authResponse?.token ||
-    authResponse?.jwt ||
-    authResponse?.accessToken ||
-    authResponse?.authToken ||
-    null;
-
-  if (token) {
-    window.localStorage.setItem(TOKEN_STORAGE_KEY, token);
-  }
-
   const session = {
     fullName: authResponse?.fullName || '',
     role: authResponse?.role || '',
     loginAt: new Date().toISOString(),
-    hasToken: Boolean(token),
+    hasToken: true,
   };
 
   window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
@@ -56,7 +38,6 @@ export function saveAuthSession(authResponse) {
 
 export function clearAuthSession() {
   window.localStorage.removeItem(AUTH_STORAGE_KEY);
-  window.localStorage.removeItem(TOKEN_STORAGE_KEY);
 }
 
 async function parseJsonResponse(response) {
@@ -71,21 +52,16 @@ async function parseJsonResponse(response) {
 }
 
 export async function apiRequest(path, options = {}) {
-  const token = getAuthToken();
   const headers = new Headers(options.headers);
 
   if (!headers.has('Content-Type') && options.body) {
     headers.set('Content-Type', 'application/json');
   }
 
-  if (token && !headers.has('Authorization')) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
-
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       ...options,
-      credentials: options.credentials || API_CREDENTIALS_MODE,
+      credentials: 'include',
       headers,
     });
 
@@ -93,8 +69,8 @@ export async function apiRequest(path, options = {}) {
 
     if (!response.ok) {
       throw new ApiError(
-        data?.message || `Request failed with status ${response.status}.`,
-        { status: response.status, data },
+          data?.message || `Request failed with status ${response.status}.`,
+          { status: response.status, data },
       );
     }
 
@@ -105,8 +81,8 @@ export async function apiRequest(path, options = {}) {
     }
 
     throw new ApiError(
-      'Cannot reach the SporTool server. Please check that Tomcat is running.',
-      { status: 0, data: null },
+        'Cannot reach the SporTool server. Please check that Tomcat is running.',
+        { status: 0, data: null },
     );
   }
 }
@@ -116,6 +92,13 @@ export const apiClient = {
     return apiRequest('/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
+    });
+  },
+
+  register(user) {
+    return apiRequest('/register', {
+      method: 'POST',
+      body: JSON.stringify(user),
     });
   },
 

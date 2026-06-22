@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { API_BASE_URL, apiClient, saveAuthSession } from '../api/client.js';
+import { apiClient, saveAuthSession } from '../api/client.js';
 import Button from '../components/Button.jsx';
 import Navbar from '../components/Navbar.jsx';
 
@@ -53,78 +53,82 @@ export default function Login({ onAuthenticated }) {
   }
 
   return (
-    <main className="app-shell">
-      <Navbar />
+      <main className="app-shell">
+        <Navbar />
 
-      <section className="auth-page section">
-        <div className="container auth-page__grid">
-          <div className="auth-copy">
-            <p className="eyebrow">Secure member access</p>
-            <h1>Sign in to command your next match.</h1>
-            <p>
-              Connect to the Java Servlet REST layer, unlock live court
-              discovery, and manage your SporTool booking flow asynchronously.
-            </p>
-            <span className="auth-copy__endpoint">POST {API_BASE_URL}/login</span>
-          </div>
-
-          <form className="auth-card" onSubmit={handleSubmit}>
-            <div>
-              <p className="eyebrow">Welcome back</p>
-              <h2>Login</h2>
+        <section className="auth-page section">
+          <div className="container auth-page__grid">
+            <div className="auth-copy">
+              <p className="eyebrow">Secure member access</p>
+              <h1>Sign in to command your next match.</h1>
+              <p>
+                Jump back into SporTool matchmaking, court discovery, and your
+                personal booking flow in seconds.
+              </p>
             </div>
 
-            {error ? (
-              <div className="notice notice--error" role="alert">
-                {error}
+            <form className="auth-card" onSubmit={handleSubmit}>
+              <div>
+                <p className="eyebrow">Welcome back</p>
+                <h2>Login</h2>
               </div>
-            ) : null}
 
-            {success ? (
-              <div className="notice notice--success" role="status">
-                {success}
-              </div>
-            ) : null}
+              {error ? (
+                  <div className="notice notice--error" role="alert">
+                    {error}
+                  </div>
+              ) : null}
 
-            <label className="field">
-              <span>Email</span>
-              <input
-                autoComplete="email"
-                name="email"
-                onChange={handleChange}
-                placeholder="you@sportool.club"
-                required
-                type="email"
-                value={formValues.email}
-              />
-            </label>
+              {success ? (
+                  <div className="notice notice--success" role="status">
+                    {success}
+                  </div>
+              ) : null}
 
-            <label className="field">
-              <span>Password</span>
-              <input
-                autoComplete="current-password"
-                name="password"
-                onChange={handleChange}
-                placeholder="Enter your password"
-                required
-                type="password"
-                value={formValues.password}
-              />
-            </label>
-
-            <div className="auth-card__meta">
-              <label>
-                <input type="checkbox" /> Keep me signed in
+              <label className="field">
+                <span>Email</span>
+                <input
+                    autoComplete="email"
+                    name="email"
+                    onChange={handleChange}
+                    placeholder="you@sportool.club"
+                    required
+                    type="email"
+                    value={formValues.email}
+                />
               </label>
-              <a href="#forgot-password">Forgot Password?</a>
-            </div>
 
-            <Button className="auth-card__submit" disabled={isSubmitting} type="submit">
-              {isSubmitting ? 'Signing In...' : 'Sign In'}
-            </Button>
-          </form>
-        </div>
-      </section>
-    </main>
+              <label className="field">
+                <span>Password</span>
+                <input
+                    autoComplete="current-password"
+                    name="password"
+                    onChange={handleChange}
+                    placeholder="Enter your password"
+                    required
+                    type="password"
+                    value={formValues.password}
+                />
+              </label>
+
+              <div className="auth-card__meta">
+                <label>
+                  <input type="checkbox" /> Keep me signed in
+                </label>
+                <a href="#forgot-password">Forgot Password?</a>
+              </div>
+
+              <Button className="auth-card__submit" disabled={isSubmitting} type="submit">
+                {isSubmitting ? 'Signing In...' : 'Sign In'}
+              </Button>
+
+              <p className="auth-card__footer">
+                Don&apos;t have an account?{' '}
+                <a href="#signup">Sign up</a>
+              </p>
+            </form>
+          </div>
+        </section>
+      </main>
   );
 }

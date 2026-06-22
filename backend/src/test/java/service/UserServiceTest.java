@@ -35,8 +35,10 @@ public class UserServiceTest {
         validUser.setEmail("test@freeuni.edu.ge");
         validUser.setPasswordHash("secure123");
         validUser.setFullName("Giorgi Giorgadze");
+        validUser.setRole("PLAYER");
 
-        when(userDao.registerUser(any(User.class))).thenReturn(true);
+        when(userDao.getUserByEmail(validUser.getEmail())).thenReturn(null);
+        when(userDao.registerUser(any(User.class))).thenReturn(null);
 
         String errorResult = userService.registerUser(validUser);
 
@@ -50,6 +52,7 @@ public class UserServiceTest {
         invalidUser.setEmail("test@freeuni.edu.ge");
         invalidUser.setPasswordHash("123");
         invalidUser.setFullName("Giorgi Giorgadze");
+        invalidUser.setRole("PLAYER");
 
         String errorResult = userService.registerUser(invalidUser);
 
@@ -64,12 +67,14 @@ public class UserServiceTest {
         validUser.setEmail("test@freeuni.edu.ge");
         validUser.setPasswordHash("secure123");
         validUser.setFullName("Giorgi Giorgadze");
+        validUser.setRole("PLAYER");
 
-        when(userDao.registerUser(any(User.class))).thenReturn(false);
+        when(userDao.getUserByEmail(validUser.getEmail())).thenReturn(new User());
 
         String errorResult = userService.registerUser(validUser);
 
         assertNotNull(errorResult);
-        assertEquals("Registration failed. Email might already exist.", errorResult);
+        assertEquals("Registration failed. Email already exists.", errorResult);
+        verify(userDao, never()).registerUser(any(User.class));
     }
 }
