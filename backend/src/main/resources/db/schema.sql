@@ -16,6 +16,19 @@ CREATE TABLE IF NOT EXISTS courts (
     price_per_hour NUMERIC(10, 2) NOT NULL
     );
 
+-- trainers table
+CREATE TABLE IF NOT EXISTS trainers (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id),
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    sport_type VARCHAR(50) NOT NULL,
+    price_per_session NUMERIC(10, 2) NOT NULL,
+    rating NUMERIC(3, 2) DEFAULT 0.0,
+    review_count INT DEFAULT 0
+    );
+
 
 -- bookings table
 CREATE TABLE IF NOT EXISTS bookings (
