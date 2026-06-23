@@ -76,6 +76,7 @@ public class LoginController extends HttpServlet {
             jsonResponse.put("message", "Login successful!");
             jsonResponse.put("role", loggedIn.getRole());
             jsonResponse.put("fullName", loggedIn.getFullName());
+            jsonResponse.put("userId", loggedIn.getId());
         }
 
         objectMapper.writeValue(response.getWriter(), jsonResponse);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { apiClient } from '../api/client.js';
+import { apiClient, saveAuthSession } from '../api/client.js';
 import Button from '../components/Button.jsx';
 import Navbar from '../components/Navbar.jsx';
 
@@ -49,17 +49,29 @@ export default function SignUp() {
     setIsSubmitting(true);
 
     try {
-      const response = await apiClient.register({
+      await apiClient.register({
         fullName: formValues.fullName.trim(),
         email: formValues.email.trim(),
         password: formValues.password,
         role: formValues.role,
       });
 
-      setSuccess(response?.message || 'Account created successfully. Redirecting to login...');
+      try {
+        const loginResponse = await apiClient.login({
+          email: formValues.email.trim(),
+          password: formValues.password,
+        });
+
+        saveAuthSession(loginResponse);
+        window.dispatchEvent(new Event('sportool:auth-changed'));
+      } catch {
+        // Account created; user can sign in manually.
+      }
+
+      setSuccess('Account created successfully. Redirecting...');
 
       window.setTimeout(() => {
-        window.location.hash = 'login';
+        window.location.hash = 'home';
       }, 900);
     } catch (requestError) {
       setError(requestError.message);
