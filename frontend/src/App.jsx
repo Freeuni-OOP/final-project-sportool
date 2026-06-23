@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Coaches from './pages/Coaches.jsx';
 import Community from './pages/Community.jsx';
-import Dashboard from './pages/Dashboard.jsx';
+import Courts from './pages/Courts.jsx';
 import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 import SignUp from './pages/SignUp.jsx';
@@ -28,7 +28,7 @@ export default function App() {
 
   if (page === 'login') return <Login />;
   if (page === 'signup') return <SignUp />;
-  if (page === 'dashboard') return <Dashboard />;
+  if (page === 'dashboard') return <Courts />;
   if (page === 'tournaments') return <Tournaments />;
   if (page === 'coaches') return <Coaches />;
   if (page === 'community') return <Community />;

@@ -28,6 +28,7 @@ export function saveAuthSession(authResponse) {
   const session = {
     fullName: authResponse?.fullName || '',
     role: authResponse?.role || '',
+    userId: authResponse?.userId || null,
     loginAt: new Date().toISOString(),
     hasToken: true,
   };
@@ -118,5 +119,13 @@ export const apiClient = {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  },
+
+  getCourtBookings(courtId, date) {
+    const params = new URLSearchParams({
+      courtId: String(courtId),
+      date,
+    });
+    return apiRequest(`/bookings?${params.toString()}`);
   },
 };

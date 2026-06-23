@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { clearAuthSession, getStoredAuth } from '../api/client.js';
 import Button from './Button.jsx';
+import ProfileDropdown from './ProfileDropdown.jsx';
 
 const navLinks = [
   { label: 'Home', href: '#home' },
@@ -50,9 +51,12 @@ export default function Navbar() {
         </div>
 
         {authSession ? (
-          <Button variant="outline" className="navbar__cta" onClick={handleSignOut}>
-            Sign Out
-          </Button>
+          <div className="navbar__user">
+            <ProfileDropdown session={authSession} />
+            <Button variant="outline" className="navbar__cta" onClick={handleSignOut}>
+              Log Out
+            </Button>
+          </div>
         ) : (
           <div className="navbar__auth">
             <Button href="#login" variant="outline" className="navbar__cta">

@@ -43,7 +43,7 @@ export default function Login({ onAuthenticated }) {
       onAuthenticated?.(session);
 
       window.setTimeout(() => {
-        window.location.hash = 'dashboard';
+        window.location.hash = 'home';
       }, 450);
     } catch (requestError) {
       setError(requestError.message);

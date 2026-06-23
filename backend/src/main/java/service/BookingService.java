@@ -2,7 +2,9 @@ package service;
 
 import dao.BookingDaoSql;
 import model.Booking;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class BookingService {
 
@@ -16,7 +18,7 @@ public class BookingService {
         this.bookingDao = bookingDao;
     }
 
-    public boolean makeBooking(Booking booking) {
+    public String makeBooking(Booking booking) {
         boolean isAvailable = bookingDao.isCourtAvailable(
                 booking.getCourtId(),
                 booking.getStartTime(),
@@ -24,10 +26,18 @@ public class BookingService {
         );
 
         if (!isAvailable) {
-            return false;
+            return "The selected court is already booked for this time slot.";
         }
 
-        return bookingDao.createBooking(booking);
+        boolean isSaved = bookingDao.createBooking(booking);
+        if (!isSaved) {
+            return "Booking could not be saved. Please verify your account and court selection.";
+        }
+
+        return null;
     }
 
+    public List<Booking> getCourtBookingsForDate(int courtId, LocalDate date) {
+        return bookingDao.getBookingsForCourtOnDate(courtId, date);
+    }
 }
