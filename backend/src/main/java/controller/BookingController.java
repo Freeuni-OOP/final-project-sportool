@@ -1,6 +1,7 @@
 package controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import model.Booking;
 import service.BookingService;
@@ -11,7 +12,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet("/api/bookings")
@@ -23,6 +26,40 @@ public class BookingController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        String courtIdParam = request.getParameter("courtId");
+        String dateParam = request.getParameter("date");
+
+        if (courtIdParam == null || dateParam == null) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            objectMapper.writeValue(response.getWriter(), Map.of(
+                    "success", false,
+                    "message", "courtId and date query parameters are required."
+            ));
+            return;
+        }
+
+        try {
+            int courtId = Integer.parseInt(courtIdParam);
+            LocalDate date = LocalDate.parse(dateParam);
+            List<Booking> bookings = bookingService.getCourtBookingsForDate(courtId, date);
+
+            response.setStatus(HttpServletResponse.SC_OK);
+            objectMapper.writeValue(response.getWriter(), bookings);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            objectMapper.writeValue(response.getWriter(), Map.of(
+                    "success", false,
+                    "message", "Invalid query parameters: " + e.getMessage()
+            ));
+        }
     }
 
     @Override
@@ -34,17 +71,17 @@ public class BookingController extends HttpServlet {
         try {
             Booking bookingRequest = objectMapper.readValue(request.getInputStream(), Booking.class);
 
-            boolean isSuccess = bookingService.makeBooking(bookingRequest);
+            String errorMessage = bookingService.makeBooking(bookingRequest);
 
-            if (isSuccess) {
-                response.setStatus(HttpServletResponse.SC_CREATED); // 201 Created
+            if (errorMessage == null) {
+                response.setStatus(HttpServletResponse.SC_CREATED);
                 jsonResponse.put("success", true);
                 jsonResponse.put("message", "Court booked successfully!");
                 jsonResponse.put("bookingId", bookingRequest.getId());
             } else {
-                response.setStatus(HttpServletResponse.SC_CONFLICT); // 409 Conflict
+                response.setStatus(HttpServletResponse.SC_CONFLICT);
                 jsonResponse.put("success", false);
-                jsonResponse.put("message", "The selected court is already booked for this time slot.");
+                jsonResponse.put("message", errorMessage);
             }
 
         } catch (Exception e) {

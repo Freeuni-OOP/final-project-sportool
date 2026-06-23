@@ -4,7 +4,10 @@ import model.Booking;
 import config.DBConnection;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BookingDaoSql {
 
@@ -61,5 +64,44 @@ public class BookingDaoSql {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public List<Booking> getBookingsForCourtOnDate(int courtId, LocalDate date) {
+        String sql = "SELECT id, user_id, court_id, start_time, end_time, total_price, status " +
+                "FROM bookings " +
+                "WHERE court_id = ? " +
+                "AND status = 'CONFIRMED' " +
+                "AND start_time >= ? " +
+                "AND start_time < ?";
+
+        LocalDateTime dayStart = date.atStartOfDay();
+        LocalDateTime dayEnd = date.plusDays(1).atStartOfDay();
+        List<Booking> bookings = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, courtId);
+            stmt.setTimestamp(2, Timestamp.valueOf(dayStart));
+            stmt.setTimestamp(3, Timestamp.valueOf(dayEnd));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    bookings.add(new Booking(
+                            rs.getInt("id"),
+                            rs.getInt("user_id"),
+                            rs.getInt("court_id"),
+                            rs.getTimestamp("start_time").toLocalDateTime(),
+                            rs.getTimestamp("end_time").toLocalDateTime(),
+                            rs.getDouble("total_price"),
+                            rs.getString("status")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return bookings;
     }
 }

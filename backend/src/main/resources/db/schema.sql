@@ -16,6 +16,18 @@ CREATE TABLE IF NOT EXISTS courts (
     price_per_hour NUMERIC(10, 2) NOT NULL
     );
 
+INSERT INTO courts (id, court_name, court_type, location, price_per_hour) VALUES
+    (1, 'Padel Tbilisi', 'Padel', 'Vake Park', 55.00),
+    (2, 'Saburtalo Football Arena', 'Football', 'Tsintsadze St', 40.00),
+    (3, 'Marjanishvili Tennis Club', 'Tennis', 'Marjanishvili', 35.00),
+    (4, 'Vera Park Basketball Court', 'Basketball', 'Vera', 25.00)
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+    pg_get_serial_sequence('courts', 'id'),
+    (SELECT COALESCE(MAX(id), 1) FROM courts)
+);
+
 -- trainers table
 CREATE TABLE IF NOT EXISTS trainers (
     id SERIAL PRIMARY KEY,

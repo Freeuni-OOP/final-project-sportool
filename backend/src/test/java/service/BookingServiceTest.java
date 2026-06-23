@@ -29,9 +29,9 @@ public class BookingServiceTest {
         fakeBookingDao.setAvailable(true);
         fakeBookingDao.setCreateSuccess(true);
 
-        boolean result = bookingService.makeBooking(booking);
+        String result = bookingService.makeBooking(booking);
 
-        assertTrue(result);
+        assertNull(result);
     }
 
     @Test
@@ -43,9 +43,10 @@ public class BookingServiceTest {
 
         fakeBookingDao.setAvailable(false);
 
-        boolean result = bookingService.makeBooking(booking);
+        String result = bookingService.makeBooking(booking);
 
-        assertFalse(result);
+        assertNotNull(result);
+        assertEquals("The selected court is already booked for this time slot.", result);
     }
 
     private static class FakeBookingDao extends BookingDaoSql {
