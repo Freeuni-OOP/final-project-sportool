@@ -54,6 +54,7 @@ public class BookingServiceTest {
         booking.setCourtId(1);
         booking.setStartTime(LocalDateTime.now().plusDays(1));
         booking.setEndTime(LocalDateTime.now().plusDays(1).plusHours(2));
+        booking.setPaymentReference("PAY-TEST123");
 
         fakeBookingDao.setAvailable(false);
 
