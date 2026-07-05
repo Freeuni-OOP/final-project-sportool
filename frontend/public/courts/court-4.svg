@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Basketball court in Vera">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a2f1d"/>
+      <stop offset="100%" stop-color="#160d08"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <rect x="100" y="130" width="600" height="300" rx="16" fill="#8b4f2d"/>
+  <rect x="130" y="160" width="540" height="240" fill="#a45f35" opacity="0.85"/>
+  <circle cx="400" cy="280" r="70" fill="none" stroke="#ffe2cc" stroke-width="4"/>
+  <rect x="130" y="220" width="80" height="120" fill="none" stroke="#ffe2cc" stroke-width="4"/>
+  <rect x="590" y="220" width="80" height="120" fill="none" stroke="#ffe2cc" stroke-width="4"/>
+  <text x="40" y="460" fill="#ffe2cc" font-family="Arial, sans-serif" font-size="28" font-weight="700">Vera Park Basketball Court</text>
+</svg>

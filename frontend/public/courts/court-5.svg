@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Padel center in Digomi">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d4a5c"/>
+      <stop offset="100%" stop-color="#08131a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <rect x="90" y="125" width="620" height="290" rx="18" fill="#2f6d86"/>
+  <rect x="120" y="155" width="560" height="230" fill="#3f91ad"/>
+  <line x1="400" y1="155" x2="400" y2="385" stroke="#d8f6ff" stroke-width="4"/>
+  <rect x="90" y="95" width="620" height="26" fill="#0d2230" opacity="0.8"/>
+  <circle cx="150" cy="320" r="18" fill="#ccff00" opacity="0.45"/>
+  <text x="40" y="460" fill="#d8f6ff" font-family="Arial, sans-serif" font-size="28" font-weight="700">Digomi Padel Center</text>
+</svg>

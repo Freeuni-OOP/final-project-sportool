@@ -20,7 +20,11 @@ INSERT INTO courts (id, court_name, court_type, location, price_per_hour) VALUES
     (1, 'Padel Tbilisi', 'Padel', 'Vake Park', 55.00),
     (2, 'Saburtalo Football Arena', 'Football', 'Tsintsadze St', 40.00),
     (3, 'Marjanishvili Tennis Club', 'Tennis', 'Marjanishvili', 35.00),
-    (4, 'Vera Park Basketball Court', 'Basketball', 'Vera', 25.00)
+    (4, 'Vera Park Basketball Court', 'Basketball', 'Vera', 25.00),
+    (5, 'Digomi Padel Center', 'Padel', 'Digomi', 50.00),
+    (6, 'Lisi Lake Football Pitch', 'Football', 'Lisi', 45.00),
+    (7, 'Rustaveli Tennis Academy', 'Tennis', 'Rustaveli Ave', 40.00),
+    (8, 'Gldani Indoor Basketball', 'Basketball', 'Gldani', 30.00)
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval(
@@ -51,6 +55,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     end_time TIMESTAMP NOT NULL,
     total_price NUMERIC(10, 2) NOT NULL,
     status VARCHAR(50) DEFAULT 'CONFIRMED',
+    payment_status VARCHAR(20) DEFAULT 'PAID',
+    payment_reference VARCHAR(100),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (court_id) REFERENCES courts(id) ON DELETE CASCADE
 );
