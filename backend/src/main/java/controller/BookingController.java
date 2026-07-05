@@ -71,6 +71,11 @@ public class BookingController extends HttpServlet {
         try {
             Booking bookingRequest = objectMapper.readValue(request.getInputStream(), Booking.class);
 
+            Integer authenticatedUserId = (Integer) request.getAttribute("authenticatedUserId");
+            if (authenticatedUserId != null && authenticatedUserId > 0) {
+                bookingRequest.setUserId(authenticatedUserId);
+            }
+
             String errorMessage = bookingService.makeBooking(bookingRequest);
 
             if (errorMessage == null) {

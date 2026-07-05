@@ -7,24 +7,34 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PostDaoSql implements PostDao{
     @Override
-    public boolean createPost(Post post) {
+    public int createPost(Post post) {
         String query = "INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setInt(1, post.getUserId());
             stmt.setString(2, post.getTitle());
             stmt.setString(3, post.getContent());
 
-            return stmt.executeUpdate() > 0;
+            if (stmt.executeUpdate() == 0) {
+                return -1;
+            }
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
+            }
+            return -1;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            return -1;
         }
     }
 

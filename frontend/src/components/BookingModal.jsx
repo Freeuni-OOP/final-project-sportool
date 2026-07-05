@@ -102,10 +102,9 @@ export default function BookingModal({ venue, onClose }) {
   const [step, setStep] = useState(1);
   const [viewDate, setViewDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedSlot, setSelectedSlot] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingSlot, setBookingSlot] = useState(null);
+  const [confirmedSlot, setConfirmedSlot] = useState(null);
   const [error, setError] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
   const [bookedSlots, setBookedSlots] = useState([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [slotsLoaded, setSlotsLoaded] = useState(false);
@@ -117,11 +116,7 @@ export default function BookingModal({ venue, onClose }) {
   const unavailableSlots = useMemo(() => new Set(bookedSlots), [bookedSlots]);
   const allSlotsAvailable = slotsLoaded && !isLoadingSlots && bookedSlots.length === 0;
 
-  const isSelectedSlotAvailable = Boolean(
-    selectedSlot && slotsLoaded && !unavailableSlots.has(selectedSlot),
-  );
-
-  const loadBookedSlots = useCallback(async () => {
+  const loadBookedSlots = useCallback(async ({ silent = false } = {}) => {
     if (!venue || !selectedDateKey) {
       setBookedSlots([]);
       setSlotsLoaded(false);
@@ -129,7 +124,9 @@ export default function BookingModal({ venue, onClose }) {
     }
 
     setIsLoadingSlots(true);
-    setSlotsLoaded(false);
+    if (!silent) {
+      setSlotsLoaded(false);
+    }
 
     try {
       const bookings = await apiClient.getCourtBookings(venue.courtId, selectedDateKey);
@@ -161,17 +158,16 @@ export default function BookingModal({ venue, onClose }) {
   }, [venue, selectedDateKey, step, loadBookedSlots]);
 
   useEffect(() => {
-    if (!selectedSlot || !unavailableSlots.has(selectedSlot)) {
-      return;
+    if (!confirmedSlot) {
+      return undefined;
     }
 
-    setSelectedSlot(null);
+    const timeoutId = window.setTimeout(() => {
+      setConfirmedSlot(null);
+    }, 1800);
 
-    if (step === 3) {
-      setError('This time slot is no longer available. Please choose another.');
-      setStep(2);
-    }
-  }, [unavailableSlots, selectedSlot, step]);
+    return () => window.clearTimeout(timeoutId);
+  }, [confirmedSlot]);
 
   function handlePreviousMonth() {
     setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
@@ -184,25 +180,17 @@ export default function BookingModal({ venue, onClose }) {
   function handleDateSelect(day) {
     if (!day || day < today) return;
     setSelectedDate(day);
-    setSelectedSlot(null);
+    setConfirmedSlot(null);
     setBookedSlots([]);
     setSlotsLoaded(false);
     setStep(2);
     setError('');
   }
 
-  function handleSlotSelect(slot) {
-    if (!slotsLoaded || isLoadingSlots || unavailableSlots.has(slot)) {
+  async function handleSlotBook(slot) {
+    if (!slotsLoaded || isLoadingSlots || unavailableSlots.has(slot) || bookingSlot) {
       return;
     }
-
-    setSelectedSlot(slot);
-    setError('');
-    setStep(3);
-  }
-
-  async function handleConfirmBooking() {
-    if (!selectedDate || !selectedSlot || !venue || !isSelectedSlotAvailable) return;
 
     const auth = getStoredAuth();
     if (!auth?.userId) {
@@ -210,14 +198,14 @@ export default function BookingModal({ venue, onClose }) {
       return;
     }
 
-    setIsSubmitting(true);
+    setBookingSlot(slot);
     setError('');
 
-    const endSlot = addHour(selectedSlot);
+    const endSlot = addHour(slot);
     const payload = {
       userId: auth.userId,
       courtId: venue.courtId,
-      startTime: `${selectedDateKey}T${selectedSlot}:00`,
+      startTime: `${selectedDateKey}T${slot}:00`,
       endTime: `${selectedDateKey}T${endSlot}:00`,
       totalPrice: venue.pricePerHour,
       status: 'CONFIRMED',
@@ -225,22 +213,15 @@ export default function BookingModal({ venue, onClose }) {
 
     try {
       await apiClient.createBooking(payload);
-      await loadBookedSlots();
-      setIsSuccess(true);
+      setBookedSlots((current) => (current.includes(slot) ? current : [...current, slot]));
+      setConfirmedSlot(slot);
+      await loadBookedSlots({ silent: true });
     } catch (requestError) {
       setError(requestError.message);
-      await loadBookedSlots();
+      await loadBookedSlots({ silent: true });
     } finally {
-      setIsSubmitting(false);
+      setBookingSlot(null);
     }
-  }
-
-  function handleBookAnother() {
-    setIsSuccess(false);
-    setSelectedSlot(null);
-    setStep(2);
-    setError('');
-    loadBookedSlots();
   }
 
   if (!venue) return null;
@@ -271,153 +252,112 @@ export default function BookingModal({ venue, onClose }) {
           </button>
         </header>
 
-        {!isSuccess ? (
-          <>
-            <div className="booking-modal__steps" aria-label="Booking progress">
-              <span className={step >= 1 ? 'is-active' : ''}>1. Date</span>
-              <span className={step >= 2 ? 'is-active' : ''}>2. Time</span>
-              <span className={step >= 3 ? 'is-active' : ''}>3. Confirm</span>
+        <div className="booking-modal__steps" aria-label="Booking progress">
+          <span className={step >= 1 ? 'is-active' : ''}>1. Date</span>
+          <span className={step >= 2 ? 'is-active' : ''}>2. Time</span>
+        </div>
+
+        {step === 1 ? (
+          <section className="booking-step">
+            <div className="booking-calendar__toolbar">
+              <button onClick={handlePreviousMonth} type="button">‹</button>
+              <strong>{monthLabel}</strong>
+              <button onClick={handleNextMonth} type="button">›</button>
             </div>
 
-            {step === 1 ? (
-              <section className="booking-step">
-                <div className="booking-calendar__toolbar">
-                  <button onClick={handlePreviousMonth} type="button">‹</button>
-                  <strong>{monthLabel}</strong>
-                  <button onClick={handleNextMonth} type="button">›</button>
-                </div>
+            <div className="booking-calendar__weekdays">
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                <span key={day}>{day}</span>
+              ))}
+            </div>
 
-                <div className="booking-calendar__weekdays">
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-                    <span key={day}>{day}</span>
-                  ))}
-                </div>
+            <div className="booking-calendar__grid">
+              {monthDays.map((day, index) => {
+                if (!day) {
+                  return <span className="booking-calendar__day is-empty" key={`empty-${index}`} />;
+                }
 
-                <div className="booking-calendar__grid">
-                  {monthDays.map((day, index) => {
-                    if (!day) {
-                      return <span className="booking-calendar__day is-empty" key={`empty-${index}`} />;
-                    }
+                const isDisabled = day < today;
+                const isSelected = selectedDate && isSameDay(day, selectedDate);
 
-                    const isDisabled = day < today;
-                    const isSelected = selectedDate && isSameDay(day, selectedDate);
-
-                    return (
-                      <button
-                        className={`booking-calendar__day${isDisabled ? ' is-disabled' : ''}${isSelected ? ' is-selected' : ''}`}
-                        disabled={isDisabled}
-                        key={toDateKey(day)}
-                        onClick={() => handleDateSelect(day)}
-                        type="button"
-                      >
-                        {day.getDate()}
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            ) : null}
-
-            {step === 2 ? (
-              <section className="booking-step">
-                <p className="booking-step__label">{formatDisplayDate(selectedDateKey)}</p>
-                {isLoadingSlots ? (
-                  <p className="booking-step__hint">Loading availability...</p>
-                ) : null}
-                {allSlotsAvailable ? (
-                  <p className="booking-step__empty">All time slots are available for this date.</p>
-                ) : null}
-                <div className="booking-slots" aria-busy={isLoadingSlots}>
-                  {TIME_SLOTS.map((slot) => {
-                    const isUnavailable = unavailableSlots.has(slot);
-                    const isSelected = selectedSlot === slot && !isUnavailable;
-                    const endSlot = addHour(slot);
-
-                    if (isUnavailable) {
-                      return (
-                        <div
-                          aria-disabled="true"
-                          className="booking-slot is-unavailable"
-                          key={slot}
-                        >
-                          <span className="booking-slot__time">{slot} – {endSlot}</span>
-                          <small className="booking-slot__status">(Unavailable)</small>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <button
-                        className={`booking-slot is-available${isSelected ? ' is-selected' : ''}`}
-                        disabled={!slotsLoaded || isLoadingSlots}
-                        key={slot}
-                        onClick={() => handleSlotSelect(slot)}
-                        type="button"
-                      >
-                        <span className="booking-slot__time">{slot} – {endSlot}</span>
-                        <small className="booking-slot__status">Available</small>
-                      </button>
-                    );
-                  })}
-                </div>
-                <Button variant="ghost" onClick={() => setStep(1)}>Back to calendar</Button>
-              </section>
-            ) : null}
-
-            {step === 3 ? (
-              <section className="booking-step">
-                <div className="booking-summary">
-                  <div>
-                    <span>Venue</span>
-                    <strong>{venue.name}</strong>
-                  </div>
-                  <div>
-                    <span>Location</span>
-                    <strong>{venue.location}</strong>
-                  </div>
-                  <div>
-                    <span>Date</span>
-                    <strong>{formatDisplayDate(selectedDateKey)}</strong>
-                  </div>
-                  <div>
-                    <span>Time</span>
-                    <strong>{selectedSlot} – {addHour(selectedSlot)}</strong>
-                  </div>
-                  <div>
-                    <span>Total</span>
-                    <strong>₾{venue.pricePerHour}</strong>
-                  </div>
-                </div>
-
-                {error ? <div className="notice notice--error">{error}</div> : null}
-
-                <div className="booking-step__actions">
-                  <Button variant="ghost" onClick={() => setStep(2)}>Back</Button>
-                  <Button
-                    disabled={!isSelectedSlotAvailable || isSubmitting || isLoadingSlots}
-                    onClick={handleConfirmBooking}
+                return (
+                  <button
+                    className={`booking-calendar__day${isDisabled ? ' is-disabled' : ''}${isSelected ? ' is-selected' : ''}`}
+                    disabled={isDisabled}
+                    key={toDateKey(day)}
+                    onClick={() => handleDateSelect(day)}
+                    type="button"
                   >
-                    {isSubmitting ? 'Confirming...' : 'Confirm Booking'}
-                  </Button>
-                </div>
-              </section>
-            ) : null}
-          </>
-        ) : (
-          <section className="booking-success">
-            <div className="booking-success__icon" aria-hidden="true">✓</div>
-            <h3>Booking confirmed</h3>
-            <p>
-              Your slot at <strong>{venue.name}</strong> is locked for{' '}
-              <strong>{formatDisplayDate(selectedDateKey)}</strong> at{' '}
-              <strong>{selectedSlot} – {addHour(selectedSlot)}</strong>.
-            </p>
-            <div className="booking-success__actions">
-              <Button variant="ghost" onClick={handleBookAnother}>Book another slot</Button>
-              <Button onClick={onClose}>Done</Button>
+                    {day.getDate()}
+                  </button>
+                );
+              })}
             </div>
           </section>
-        )}
+        ) : null}
+
+        {step === 2 ? (
+          <section className="booking-step">
+            <p className="booking-step__label">{formatDisplayDate(selectedDateKey)}</p>
+            {isLoadingSlots && !slotsLoaded ? (
+              <p className="booking-step__hint">Loading availability...</p>
+            ) : null}
+            {allSlotsAvailable ? (
+              <p className="booking-step__empty">All time slots are available for this date.</p>
+            ) : null}
+            {error ? <div className="notice notice--error">{error}</div> : null}
+            <div className="booking-slots" aria-busy={isLoadingSlots}>
+              {TIME_SLOTS.map((slot) => {
+                const isUnavailable = unavailableSlots.has(slot);
+                const isConfirming = confirmedSlot === slot;
+                const isBooking = bookingSlot === slot;
+                const endSlot = addHour(slot);
+
+                if (isUnavailable) {
+                  return (
+                    <div
+                      aria-disabled="true"
+                      className="booking-slot is-unavailable"
+                      key={slot}
+                    >
+                      <span className="booking-slot__time">{slot} – {endSlot}</span>
+                      <small className="booking-slot__status">(Unavailable)</small>
+                    </div>
+                  );
+                }
+
+                if (isConfirming) {
+                  return (
+                    <div
+                      aria-live="polite"
+                      className="booking-slot is-confirmed"
+                      key={slot}
+                    >
+                      <span className="booking-slot__check" aria-hidden="true">✓</span>
+                      <small className="booking-slot__status">Booked</small>
+                    </div>
+                  );
+                }
+
+                return (
+                  <button
+                    className="booking-slot is-available"
+                    disabled={!slotsLoaded || isLoadingSlots || Boolean(bookingSlot)}
+                    key={slot}
+                    onClick={() => handleSlotBook(slot)}
+                    type="button"
+                  >
+                    <span className="booking-slot__time">{slot} – {endSlot}</span>
+                    <small className="booking-slot__status">
+                      {isBooking ? 'Booking...' : 'Available'}
+                    </small>
+                  </button>
+                );
+              })}
+            </div>
+            <Button variant="ghost" onClick={() => setStep(1)}>Back to calendar</Button>
+          </section>
+        ) : null}
       </div>
     </div>
   );
