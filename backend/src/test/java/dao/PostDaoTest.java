@@ -12,10 +12,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class PostDaoTest {
@@ -49,13 +51,17 @@ public class PostDaoTest {
     @Test
     public void testCreatePostSuccess() throws SQLException {
         Post post = new Post(0, 10, "title", "text", null);
+        ResultSet mockGeneratedKeys = mock(ResultSet.class);
 
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
+        when(mockConnection.prepareStatement(anyString(), eq(Statement.RETURN_GENERATED_KEYS))).thenReturn(mockStatement);
         when(mockStatement.executeUpdate()).thenReturn(1);
+        when(mockStatement.getGeneratedKeys()).thenReturn(mockGeneratedKeys);
+        when(mockGeneratedKeys.next()).thenReturn(true);
+        when(mockGeneratedKeys.getInt(1)).thenReturn(42);
 
-        boolean isCreated = dao.createPost(post);
+        int postId = dao.createPost(post);
 
-        assertTrue(isCreated);
+        assertEquals(42, postId);
         verify(mockStatement).setInt(1, post.getUserId());
         verify(mockStatement).setString(2, post.getTitle());
         verify(mockStatement).setString(3, post.getContent());

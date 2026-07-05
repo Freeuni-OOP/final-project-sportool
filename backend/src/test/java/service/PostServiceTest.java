@@ -37,29 +37,35 @@ public class PostServiceTest {
     public void testCreatePostSuccess() {
         Post validPost = new Post(0, 10, "New Post", "hello my friends", null);
 
-        when(mockPostDao.createPost(validPost)).thenReturn(true);
-        boolean result = postService.createPost(validPost);
-        assertTrue(result);
-
+        when(mockPostDao.createPost(validPost)).thenReturn(42);
+        int result = postService.createPost(validPost);
+        assertEquals(42, result);
     }
 
     @Test
     public void testCreatePostFailEmptyTitle() {
         Post invalidPost = new Post(0, 10, "", "text", null);
 
-        boolean result = postService.createPost(invalidPost);
-        assertFalse(result);
+        int result = postService.createPost(invalidPost);
+        assertEquals(-1, result);
         verify(mockPostDao, never()).createPost(any(Post.class));
     }
 
     @Test
     public void testCreatePostFailNullContent() {
-
         Post invalidPost = new Post(0, 10, "title", null, null);
 
-        boolean result = postService.createPost(invalidPost);
+        int result = postService.createPost(invalidPost);
+        assertEquals(-1, result);
+        verify(mockPostDao, never()).createPost(any(Post.class));
+    }
 
-        assertFalse(result);
+    @Test
+    public void testCreatePostFailInvalidUserId() {
+        Post invalidPost = new Post(0, 0, "title", "text", null);
+
+        int result = postService.createPost(invalidPost);
+        assertEquals(-1, result);
         verify(mockPostDao, never()).createPost(any(Post.class));
     }
 

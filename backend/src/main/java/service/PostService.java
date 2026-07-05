@@ -13,10 +13,13 @@ public class PostService {
         this.postDao = new PostDaoSql();
     }
 
-    public boolean createPost(Post post) {
+    public int createPost(Post post) {
         if (post.getTitle() == null || post.getTitle().trim().isEmpty() ||
                 post.getContent() == null || post.getContent().trim().isEmpty()) {
-            return false;
+            return -1;
+        }
+        if (post.getUserId() <= 0) {
+            return -1;
         }
         return postDao.createPost(post);
     }

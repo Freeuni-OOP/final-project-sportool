@@ -34,6 +34,7 @@ services:
       - DB_URL=jdbc:postgresql://postgres-db:5432/sportool
       - DB_USER=postgres
       - DB_PASSWORD=your_secure_password
+      - JWT_SECRET=sportool-docker-jwt-secret-key-min-32-chars
     depends_on:
       postgres-db:
         condition: service_healthy
