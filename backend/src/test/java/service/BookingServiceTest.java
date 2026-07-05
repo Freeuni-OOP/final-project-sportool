@@ -25,6 +25,7 @@ public class BookingServiceTest {
         booking.setCourtId(1);
         booking.setStartTime(LocalDateTime.now().plusDays(1));
         booking.setEndTime(LocalDateTime.now().plusDays(1).plusHours(2));
+        booking.setPaymentReference("PAY-TEST123");
 
         fakeBookingDao.setAvailable(true);
         fakeBookingDao.setCreateSuccess(true);
@@ -32,6 +33,19 @@ public class BookingServiceTest {
         String result = bookingService.makeBooking(booking);
 
         assertNull(result);
+    }
+
+    @Test
+    public void testMakeBookingRequiresPayment() {
+        Booking booking = new Booking();
+        booking.setCourtId(1);
+        booking.setStartTime(LocalDateTime.now().plusDays(1));
+        booking.setEndTime(LocalDateTime.now().plusDays(1).plusHours(2));
+
+        String result = bookingService.makeBooking(booking);
+
+        assertNotNull(result);
+        assertEquals("Payment is required before confirming a booking.", result);
     }
 
     @Test

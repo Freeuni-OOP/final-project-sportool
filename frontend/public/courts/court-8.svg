@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Indoor basketball court in Gldani">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a2438"/>
+      <stop offset="100%" stop-color="#120a14"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <rect x="80" y="80" width="640" height="360" rx="20" fill="#241824"/>
+  <rect x="120" y="150" width="560" height="250" rx="12" fill="#8f4d67"/>
+  <circle cx="400" cy="275" r="65" fill="none" stroke="#ffd8ea" stroke-width="4"/>
+  <rect x="120" y="215" width="70" height="110" fill="none" stroke="#ffd8ea" stroke-width="4"/>
+  <rect x="610" y="215" width="70" height="110" fill="none" stroke="#ffd8ea" stroke-width="4"/>
+  <rect x="300" y="80" width="200" height="24" fill="#ccff00" opacity="0.35"/>
+  <text x="40" y="460" fill="#ffd8ea" font-family="Arial, sans-serif" font-size="28" font-weight="700">Gldani Indoor Basketball</text>
+</svg>

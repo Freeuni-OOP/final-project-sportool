@@ -114,6 +114,13 @@ export const apiClient = {
     return apiRequest(`/courts${query ? `?${query}` : ''}`);
   },
 
+  processPayment(payload) {
+    return apiRequest('/payments/process', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
   createBooking(payload) {
     return apiRequest('/bookings', {
       method: 'POST',
@@ -127,5 +134,9 @@ export const apiClient = {
       date,
     });
     return apiRequest(`/bookings?${params.toString()}`);
+  },
+
+  getMyBookings() {
+    return apiRequest('/bookings?mine=true');
   },
 };
