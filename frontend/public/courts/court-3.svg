@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Tennis club in Marjanishvili">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a4f24"/>
+      <stop offset="100%" stop-color="#121a0d"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <rect x="120" y="150" width="560" height="260" rx="12" fill="#6f8f3d"/>
+  <line x1="120" y1="280" x2="680" y2="280" stroke="#f4ffd8" stroke-width="3"/>
+  <line x1="400" y1="150" x2="400" y2="410" stroke="#f4ffd8" stroke-width="4"/>
+  <ellipse cx="400" cy="120" rx="180" ry="24" fill="#1f2d14" opacity="0.8"/>
+  <circle cx="620" cy="180" r="26" fill="#ccff00" opacity="0.35"/>
+  <text x="40" y="460" fill="#f4ffd8" font-family="Arial, sans-serif" font-size="28" font-weight="700">Marjanishvili Tennis Club</text>
+</svg>

@@ -1,6 +1,7 @@
 package dao;
 
 import model.Booking;
+import model.UserBookingView;
 import config.DBConnection;
 
 import java.sql.*;
@@ -12,8 +13,8 @@ import java.util.List;
 public class BookingDaoSql {
 
     public boolean createBooking(Booking booking) {
-        String sql = "INSERT INTO bookings (user_id, court_id, start_time, end_time, total_price, status) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO bookings (user_id, court_id, start_time, end_time, total_price, status, payment_status, payment_reference) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -24,6 +25,8 @@ public class BookingDaoSql {
             stmt.setTimestamp(4, Timestamp.valueOf(booking.getEndTime()));
             stmt.setDouble(5, booking.getTotalPrice());
             stmt.setString(6, booking.getStatus() != null ? booking.getStatus() : "CONFIRMED");
+            stmt.setString(7, booking.getPaymentStatus() != null ? booking.getPaymentStatus() : "PAID");
+            stmt.setString(8, booking.getPaymentReference());
 
             int rowsAffected = stmt.executeUpdate();
 
@@ -96,6 +99,47 @@ public class BookingDaoSql {
                             rs.getDouble("total_price"),
                             rs.getString("status")
                     ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return bookings;
+    }
+
+    public List<UserBookingView> getBookingsByUserId(int userId) {
+        String sql = """
+                SELECT b.id, b.court_id, c.court_name, c.location, c.court_type,
+                       b.start_time, b.end_time, b.total_price, b.status, b.payment_status
+                FROM bookings b
+                JOIN courts c ON b.court_id = c.id
+                WHERE b.user_id = ?
+                ORDER BY b.start_time DESC
+                """;
+
+        List<UserBookingView> bookings = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    UserBookingView booking = new UserBookingView();
+                    booking.setId(rs.getInt("id"));
+                    booking.setCourtId(rs.getInt("court_id"));
+                    booking.setCourtName(rs.getString("court_name"));
+                    booking.setLocation(rs.getString("location"));
+                    booking.setCourtType(rs.getString("court_type"));
+                    booking.setStartTime(rs.getTimestamp("start_time").toLocalDateTime());
+                    booking.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+                    booking.setTotalPrice(rs.getDouble("total_price"));
+                    booking.setStatus(rs.getString("status"));
+                    String paymentStatus = rs.getString("payment_status");
+                    booking.setPaymentStatus(paymentStatus != null ? paymentStatus : "PAID");
+                    bookings.add(booking);
                 }
             }
         } catch (SQLException e) {

@@ -82,10 +82,23 @@ public class JwtAuthFilter implements Filter {
         if (!"GET".equalsIgnoreCase(request.getMethod())) {
             return false;
         }
-        return path.equals("/api/posts")
+        if (path.equals("/api/posts")
                 || path.equals("/api/courts")
-                || path.equals("/api/bookings")
-                || path.startsWith("/api/trainers");
+                || path.startsWith("/api/trainers")) {
+            return true;
+        }
+        if (path.equals("/api/bookings")) {
+            return isPublicBookingAvailabilityRequest(request);
+        }
+        return false;
+    }
+
+    private static boolean isPublicBookingAvailabilityRequest(HttpServletRequest request) {
+        if ("true".equalsIgnoreCase(request.getParameter("mine"))) {
+            return false;
+        }
+
+        return request.getParameter("courtId") != null && request.getParameter("date") != null;
     }
 
     private static String extractToken(HttpServletRequest request) {

@@ -7,6 +7,13 @@ const TIME_SLOTS = [
   '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00',
 ];
 
+const EMPTY_PAYMENT = {
+  cardNumber: '',
+  cardHolder: '',
+  expiry: '',
+  cvv: '',
+};
+
 function formatDisplayDate(dateString) {
   if (!dateString) return '';
 
@@ -102,8 +109,10 @@ export default function BookingModal({ venue, onClose }) {
   const [step, setStep] = useState(1);
   const [viewDate, setViewDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDate, setSelectedDate] = useState(null);
-  const [bookingSlot, setBookingSlot] = useState(null);
-  const [confirmedSlot, setConfirmedSlot] = useState(null);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [paymentDetails, setPaymentDetails] = useState(EMPTY_PAYMENT);
+  const [isPaying, setIsPaying] = useState(false);
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const [error, setError] = useState('');
   const [bookedSlots, setBookedSlots] = useState([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
@@ -158,16 +167,16 @@ export default function BookingModal({ venue, onClose }) {
   }, [venue, selectedDateKey, step, loadBookedSlots]);
 
   useEffect(() => {
-    if (!confirmedSlot) {
+    if (!showPaymentSuccess) {
       return undefined;
     }
 
     const timeoutId = window.setTimeout(() => {
-      setConfirmedSlot(null);
+      onClose();
     }, 1800);
 
     return () => window.clearTimeout(timeoutId);
-  }, [confirmedSlot]);
+  }, [showPaymentSuccess, onClose]);
 
   function handlePreviousMonth() {
     setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1));
@@ -180,15 +189,17 @@ export default function BookingModal({ venue, onClose }) {
   function handleDateSelect(day) {
     if (!day || day < today) return;
     setSelectedDate(day);
-    setConfirmedSlot(null);
+    setSelectedSlot(null);
+    setPaymentDetails(EMPTY_PAYMENT);
+    setShowPaymentSuccess(false);
     setBookedSlots([]);
     setSlotsLoaded(false);
     setStep(2);
     setError('');
   }
 
-  async function handleSlotBook(slot) {
-    if (!slotsLoaded || isLoadingSlots || unavailableSlots.has(slot) || bookingSlot) {
+  function handleSlotSelect(slot) {
+    if (!slotsLoaded || isLoadingSlots || unavailableSlots.has(slot)) {
       return;
     }
 
@@ -198,29 +209,63 @@ export default function BookingModal({ venue, onClose }) {
       return;
     }
 
-    setBookingSlot(slot);
+    setSelectedSlot(slot);
+    setPaymentDetails(EMPTY_PAYMENT);
+    setError('');
+    setStep(3);
+  }
+
+  function handlePaymentFieldChange(field, value) {
+    setPaymentDetails((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  async function handlePaymentSubmit(event) {
+    event.preventDefault();
+
+    if (!selectedSlot || !venue) {
+      return;
+    }
+
+    const auth = getStoredAuth();
+    if (!auth?.userId) {
+      setError('Please sign in before booking a court.');
+      return;
+    }
+
+    setIsPaying(true);
     setError('');
 
-    const endSlot = addHour(slot);
-    const payload = {
-      userId: auth.userId,
-      courtId: venue.courtId,
-      startTime: `${selectedDateKey}T${slot}:00`,
-      endTime: `${selectedDateKey}T${endSlot}:00`,
-      totalPrice: venue.pricePerHour,
-      status: 'CONFIRMED',
-    };
+    const endSlot = addHour(selectedSlot);
 
     try {
+      const paymentResponse = await apiClient.processPayment({
+        amount: venue.pricePerHour,
+        cardNumber: paymentDetails.cardNumber,
+        cardHolder: paymentDetails.cardHolder,
+        expiry: paymentDetails.expiry,
+        cvv: paymentDetails.cvv,
+      });
+
+      const payload = {
+        userId: auth.userId,
+        courtId: venue.courtId,
+        startTime: `${selectedDateKey}T${selectedSlot}:00`,
+        endTime: `${selectedDateKey}T${endSlot}:00`,
+        totalPrice: venue.pricePerHour,
+        status: 'CONFIRMED',
+        paymentStatus: 'PAID',
+        paymentReference: paymentResponse.paymentReference,
+      };
+
       await apiClient.createBooking(payload);
-      setBookedSlots((current) => (current.includes(slot) ? current : [...current, slot]));
-      setConfirmedSlot(slot);
-      await loadBookedSlots({ silent: true });
+      setShowPaymentSuccess(true);
     } catch (requestError) {
       setError(requestError.message);
-      await loadBookedSlots({ silent: true });
     } finally {
-      setBookingSlot(null);
+      setIsPaying(false);
     }
   }
 
@@ -255,6 +300,7 @@ export default function BookingModal({ venue, onClose }) {
         <div className="booking-modal__steps" aria-label="Booking progress">
           <span className={step >= 1 ? 'is-active' : ''}>1. Date</span>
           <span className={step >= 2 ? 'is-active' : ''}>2. Time</span>
+          <span className={step >= 3 ? 'is-active' : ''}>3. Payment</span>
         </div>
 
         {step === 1 ? (
@@ -309,8 +355,6 @@ export default function BookingModal({ venue, onClose }) {
             <div className="booking-slots" aria-busy={isLoadingSlots}>
               {TIME_SLOTS.map((slot) => {
                 const isUnavailable = unavailableSlots.has(slot);
-                const isConfirming = confirmedSlot === slot;
-                const isBooking = bookingSlot === slot;
                 const endSlot = addHour(slot);
 
                 if (isUnavailable) {
@@ -326,31 +370,16 @@ export default function BookingModal({ venue, onClose }) {
                   );
                 }
 
-                if (isConfirming) {
-                  return (
-                    <div
-                      aria-live="polite"
-                      className="booking-slot is-confirmed"
-                      key={slot}
-                    >
-                      <span className="booking-slot__check" aria-hidden="true">✓</span>
-                      <small className="booking-slot__status">Booked</small>
-                    </div>
-                  );
-                }
-
                 return (
                   <button
                     className="booking-slot is-available"
-                    disabled={!slotsLoaded || isLoadingSlots || Boolean(bookingSlot)}
+                    disabled={!slotsLoaded || isLoadingSlots}
                     key={slot}
-                    onClick={() => handleSlotBook(slot)}
+                    onClick={() => handleSlotSelect(slot)}
                     type="button"
                   >
                     <span className="booking-slot__time">{slot} – {endSlot}</span>
-                    <small className="booking-slot__status">
-                      {isBooking ? 'Booking...' : 'Available'}
-                    </small>
+                    <small className="booking-slot__status">Available</small>
                   </button>
                 );
               })}
@@ -358,7 +387,107 @@ export default function BookingModal({ venue, onClose }) {
             <Button variant="ghost" onClick={() => setStep(1)}>Back to calendar</Button>
           </section>
         ) : null}
+
+        {step === 3 && selectedSlot ? (
+          <section className="booking-step">
+            <p className="booking-step__label">Complete payment</p>
+
+            <div className="booking-summary">
+              <div>
+                <span>Venue</span>
+                <strong>{venue.name}</strong>
+              </div>
+              <div>
+                <span>Date</span>
+                <strong>{formatDisplayDate(selectedDateKey)}</strong>
+              </div>
+              <div>
+                <span>Time</span>
+                <strong>{selectedSlot} – {addHour(selectedSlot)}</strong>
+              </div>
+              <div>
+                <span>Total</span>
+                <strong>₾{venue.pricePerHour}</strong>
+              </div>
+            </div>
+
+            <form className="payment-form" onSubmit={handlePaymentSubmit}>
+              <label>
+                <span>Card number</span>
+                <input
+                  autoComplete="cc-number"
+                  inputMode="numeric"
+                  maxLength={19}
+                  onChange={(event) => handlePaymentFieldChange('cardNumber', event.target.value)}
+                  placeholder="4242 4242 4242 4242"
+                  required
+                  type="text"
+                  value={paymentDetails.cardNumber}
+                />
+              </label>
+
+              <label>
+                <span>Cardholder name</span>
+                <input
+                  autoComplete="cc-name"
+                  onChange={(event) => handlePaymentFieldChange('cardHolder', event.target.value)}
+                  placeholder="Name on card"
+                  required
+                  type="text"
+                  value={paymentDetails.cardHolder}
+                />
+              </label>
+
+              <div className="payment-form__row">
+                <label>
+                  <span>Expiry</span>
+                  <input
+                    autoComplete="cc-exp"
+                    maxLength={5}
+                    onChange={(event) => handlePaymentFieldChange('expiry', event.target.value)}
+                    placeholder="MM/YY"
+                    required
+                    type="text"
+                    value={paymentDetails.expiry}
+                  />
+                </label>
+
+                <label>
+                  <span>CVV</span>
+                  <input
+                    autoComplete="cc-csc"
+                    inputMode="numeric"
+                    maxLength={3}
+                    onChange={(event) => handlePaymentFieldChange('cvv', event.target.value)}
+                    placeholder="123"
+                    required
+                    type="password"
+                    value={paymentDetails.cvv}
+                  />
+                </label>
+              </div>
+
+              <p className="payment-form__hint">Demo payment only. No real card is charged.</p>
+
+              {error ? <div className="notice notice--error">{error}</div> : null}
+
+              <div className="booking-step__actions">
+                <Button type="button" variant="ghost" onClick={() => setStep(2)}>Back</Button>
+                <Button disabled={isPaying} type="submit">
+                  {isPaying ? 'Processing...' : `Pay ₾${venue.pricePerHour}`}
+                </Button>
+              </div>
+            </form>
+          </section>
+        ) : null}
       </div>
+
+      {showPaymentSuccess ? (
+        <div aria-live="polite" className="booking-payment-success" role="status">
+          <span className="booking-payment-success__emoji" aria-hidden="true">💳</span>
+          <p>Payment successful!</p>
+        </div>
+      ) : null}
     </div>
   );
 }

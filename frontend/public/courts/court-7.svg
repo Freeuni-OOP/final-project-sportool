@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Tennis academy on Rustaveli Avenue">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4d3d1f"/>
+      <stop offset="100%" stop-color="#171107"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <rect x="110" y="145" width="580" height="270" rx="14" fill="#7d8f45"/>
+  <line x1="110" y1="280" x2="690" y2="280" stroke="#fff8d8" stroke-width="3"/>
+  <line x1="400" y1="145" x2="400" y2="415" stroke="#fff8d8" stroke-width="4"/>
+  <rect x="250" y="70" width="300" height="50" rx="8" fill="#2a2414" opacity="0.85"/>
+  <text x="285" y="105" fill="#fff8d8" font-family="Arial, sans-serif" font-size="22" font-weight="700">RUSTAVELI</text>
+  <text x="40" y="460" fill="#fff8d8" font-family="Arial, sans-serif" font-size="28" font-weight="700">Rustaveli Tennis Academy</text>
+</svg>

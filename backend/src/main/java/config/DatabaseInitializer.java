@@ -27,6 +27,8 @@ public class DatabaseInitializer implements ServletContextListener {
             }
 
             seedCourtsIfEmpty(conn);
+            ensureBookingPaymentColumns(conn);
+            seedAdditionalCourts(conn);
         } catch (SQLException e) {
             System.err.println("SporTool database initialization skipped: " + e.getMessage());
         }
@@ -55,7 +57,11 @@ public class DatabaseInitializer implements ServletContextListener {
                 (1, 'Padel Tbilisi', 'Padel', 'Vake Park', 55.00),
                 (2, 'Saburtalo Football Arena', 'Football', 'Tsintsadze St', 40.00),
                 (3, 'Marjanishvili Tennis Club', 'Tennis', 'Marjanishvili', 35.00),
-                (4, 'Vera Park Basketball Court', 'Basketball', 'Vera', 25.00)
+                (4, 'Vera Park Basketball Court', 'Basketball', 'Vera', 25.00),
+                (5, 'Digomi Padel Center', 'Padel', 'Digomi', 50.00),
+                (6, 'Lisi Lake Football Pitch', 'Football', 'Lisi', 45.00),
+                (7, 'Rustaveli Tennis Academy', 'Tennis', 'Rustaveli Ave', 40.00),
+                (8, 'Gldani Indoor Basketball', 'Basketball', 'Gldani', 30.00)
                 ON CONFLICT (id) DO NOTHING
                 """;
 
@@ -66,6 +72,40 @@ public class DatabaseInitializer implements ServletContextListener {
                     "(SELECT COALESCE(MAX(id), 1) FROM courts))"
             );
             System.out.println("SporTool courts seeded.");
+        }
+    }
+
+    private void ensureBookingPaymentColumns(Connection conn) throws SQLException {
+        if (!tableExists(conn, "bookings")) {
+            return;
+        }
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_status VARCHAR(20) DEFAULT 'PAID'");
+            stmt.execute("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_reference VARCHAR(100)");
+        }
+    }
+
+    private void seedAdditionalCourts(Connection conn) throws SQLException {
+        if (!tableExists(conn, "courts")) {
+            return;
+        }
+
+        String insertAdditionalCourts = """
+                INSERT INTO courts (id, court_name, court_type, location, price_per_hour) VALUES
+                (5, 'Digomi Padel Center', 'Padel', 'Digomi', 50.00),
+                (6, 'Lisi Lake Football Pitch', 'Football', 'Lisi', 45.00),
+                (7, 'Rustaveli Tennis Academy', 'Tennis', 'Rustaveli Ave', 40.00),
+                (8, 'Gldani Indoor Basketball', 'Basketball', 'Gldani', 30.00)
+                ON CONFLICT (id) DO NOTHING
+                """;
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(insertAdditionalCourts);
+            stmt.execute(
+                    "SELECT setval(pg_get_serial_sequence('courts', 'id'), " +
+                    "(SELECT COALESCE(MAX(id), 1) FROM courts))"
+            );
         }
     }
 

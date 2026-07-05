@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Padel court in Vake Park">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1f4d3a"/>
+      <stop offset="100%" stop-color="#0a1712"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <rect x="80" y="120" width="640" height="300" rx="18" fill="#2d6b4f"/>
+  <rect x="110" y="150" width="580" height="240" fill="#3f8f66"/>
+  <line x1="400" y1="150" x2="400" y2="390" stroke="#d8ffe0" stroke-width="4"/>
+  <rect x="80" y="90" width="640" height="30" fill="#102820" opacity="0.7"/>
+  <circle cx="650" cy="90" r="28" fill="#ccff00" opacity="0.35"/>
+  <text x="40" y="460" fill="#d8ffe0" font-family="Arial, sans-serif" font-size="28" font-weight="700">Padel Tbilisi</text>
+</svg>

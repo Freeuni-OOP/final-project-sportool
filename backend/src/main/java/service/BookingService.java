@@ -2,6 +2,7 @@ package service;
 
 import dao.BookingDaoSql;
 import model.Booking;
+import model.UserBookingView;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,6 +20,10 @@ public class BookingService {
     }
 
     public String makeBooking(Booking booking) {
+        if (booking.getPaymentReference() == null || booking.getPaymentReference().isBlank()) {
+            return "Payment is required before confirming a booking.";
+        }
+
         boolean isAvailable = bookingDao.isCourtAvailable(
                 booking.getCourtId(),
                 booking.getStartTime(),
@@ -39,5 +44,9 @@ public class BookingService {
 
     public List<Booking> getCourtBookingsForDate(int courtId, LocalDate date) {
         return bookingDao.getBookingsForCourtOnDate(courtId, date);
+    }
+
+    public List<UserBookingView> getUserBookings(int userId) {
+        return bookingDao.getBookingsByUserId(userId);
     }
 }

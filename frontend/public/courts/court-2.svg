@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Football arena in Saburtalo">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#173528"/>
+      <stop offset="100%" stop-color="#08140f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <rect x="60" y="140" width="680" height="280" rx="20" fill="#2f7a45"/>
+  <circle cx="400" cy="280" r="70" fill="none" stroke="#dfffe8" stroke-width="4"/>
+  <line x1="400" y1="140" x2="400" y2="420" stroke="#dfffe8" stroke-width="4"/>
+  <rect x="60" y="110" width="680" height="24" fill="#0f2418" opacity="0.75"/>
+  <circle cx="120" cy="280" r="8" fill="#ffffff"/>
+  <text x="40" y="460" fill="#dfffe8" font-family="Arial, sans-serif" font-size="28" font-weight="700">Saburtalo Football Arena</text>
+</svg>

@@ -36,6 +36,26 @@ public class BookingController extends HttpServlet {
 
         String courtIdParam = request.getParameter("courtId");
         String dateParam = request.getParameter("date");
+        String mineParam = request.getParameter("mine");
+
+        if ("true".equalsIgnoreCase(mineParam)) {
+            Integer authenticatedUserId = (Integer) request.getAttribute("authenticatedUserId");
+            if (authenticatedUserId == null || authenticatedUserId <= 0) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                objectMapper.writeValue(response.getWriter(), Map.of(
+                        "success", false,
+                        "message", "Authentication required."
+                ));
+                return;
+            }
+
+            response.setStatus(HttpServletResponse.SC_OK);
+            objectMapper.writeValue(
+                    response.getWriter(),
+                    bookingService.getUserBookings(authenticatedUserId)
+            );
+            return;
+        }
 
         if (courtIdParam == null || dateParam == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
