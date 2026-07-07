@@ -139,4 +139,32 @@ export const apiClient = {
   getMyBookings() {
     return apiRequest('/bookings?mine=true');
   },
+
+
+  getPosts() {
+    return apiRequest('/posts');
+  },
+
+  createPost(postData) {
+    return apiRequest('/posts', {
+      method: 'POST',
+      body: JSON.stringify(postData),
+    });
+  },
+  getComments(postId) {
+    return apiRequest(`/comments?postId=${postId}`);
+  },
+
+  createComment(commentData) {
+    return apiRequest('/comments', {
+      method: 'POST',
+      body: JSON.stringify(commentData),
+    });
+  },
+
+  deleteComment(commentId) {
+    return apiRequest(`/comments?id=${commentId}`, {
+      method: 'DELETE',
+    });
+  },
 };

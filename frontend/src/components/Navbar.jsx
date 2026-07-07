@@ -32,6 +32,7 @@ export default function Navbar() {
     setAuthSession(null);
     window.dispatchEvent(new Event('sportool:auth-changed'));
     window.location.hash = 'home';
+    window.location.reload();
   }
 
   return (
