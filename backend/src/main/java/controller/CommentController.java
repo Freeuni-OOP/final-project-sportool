@@ -83,7 +83,7 @@ public class CommentController extends HttpServlet {
         objectMapper.writeValue(response.getWriter(), jsonResponse);
     }
 
-    // კომენტარის წაშლა: /api/comments?id=X
+
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

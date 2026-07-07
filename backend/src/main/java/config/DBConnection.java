@@ -23,7 +23,7 @@ public class DBConnection {
 
         URL = (envUrl != null) ? envUrl : "jdbc:postgresql://localhost:5432/postgres";
         USER = (envUser != null) ? envUser : "postgres";
-        PASSWORD = (envPassword != null) ? envPassword : "okmela";
+        PASSWORD = (envPassword != null) ? envPassword : "";
     }
 
     public static Connection getConnection() throws SQLException {
