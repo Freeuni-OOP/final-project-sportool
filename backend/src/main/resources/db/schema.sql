@@ -72,12 +72,38 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 --comments table
-CREATE TABLE comments (
+CREATE TABLE IF NOT EXISTS comments (
     id SERIAL PRIMARY KEY,
     post_id INT NOT NULL,
     user_id INT NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+--match announcements table
+CREATE TABLE IF NOT EXISTS match_announcements (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    venue VARCHAR(255) NOT NULL,
+    match_time TIMESTAMP NOT NULL,
+    sport_type VARCHAR(50) NOT NULL,
+    players_needed INT NOT NULL CHECK (players_needed >= 0),
+    notes TEXT,
+    skill_level VARCHAR(50),
+    contact_info VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+--match joins table
+CREATE TABLE IF NOT EXISTS match_joins (
+    id SERIAL PRIMARY KEY,
+    match_id INT NOT NULL,
+    user_id INT NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (match_id, user_id),
+    FOREIGN KEY (match_id) REFERENCES match_announcements(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

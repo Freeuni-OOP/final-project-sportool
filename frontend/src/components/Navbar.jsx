@@ -6,7 +6,7 @@ import ProfileDropdown from './ProfileDropdown.jsx';
 const navLinks = [
   { label: 'Home', href: '#home' },
   { label: 'Courts', href: '#dashboard' },
-  { label: 'Matches', href: '#tournaments' },
+  { label: 'Matches', href: '#matches' },
   { label: 'Coaches', href: '#coaches' },
 ];
 

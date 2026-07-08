@@ -21,7 +21,7 @@ public class DatabaseInitializer implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try (Connection conn = DBConnection.getConnection()) {
-            if (!tableExists(conn, "users")) {
+            if (isSchemaInitializationNeeded(conn)) {
                 runSchemaScript(conn);
                 System.out.println("SporTool database schema initialized.");
             }
@@ -32,6 +32,17 @@ public class DatabaseInitializer implements ServletContextListener {
         } catch (SQLException e) {
             System.err.println("SporTool database initialization skipped: " + e.getMessage());
         }
+    }
+
+    private boolean isSchemaInitializationNeeded(Connection conn) throws SQLException {
+        return !tableExists(conn, "users")
+                || !tableExists(conn, "courts")
+                || !tableExists(conn, "trainers")
+                || !tableExists(conn, "bookings")
+                || !tableExists(conn, "posts")
+                || !tableExists(conn, "comments")
+                || !tableExists(conn, "match_announcements")
+                || !tableExists(conn, "match_joins");
     }
 
     private boolean tableExists(Connection conn, String tableName) throws SQLException {
