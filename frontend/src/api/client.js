@@ -140,6 +140,29 @@ export const apiClient = {
     return apiRequest('/bookings?mine=true');
   },
 
+  getMatches() {
+    return apiRequest('/matches');
+  },
+
+  createMatch(matchData) {
+    return apiRequest('/matches', {
+      method: 'POST',
+      body: JSON.stringify(matchData),
+    });
+  },
+
+  joinMatch(matchId) {
+    return apiRequest(`/matches/join?id=${matchId}`, {
+      method: 'POST',
+    });
+  },
+
+  deleteMatch(matchId) {
+    return apiRequest(`/matches?id=${matchId}`, {
+      method: 'DELETE',
+    });
+  },
+
 
   getPosts() {
     return apiRequest('/posts');
@@ -151,6 +174,13 @@ export const apiClient = {
       body: JSON.stringify(postData),
     });
   },
+
+  deletePost(postId) {
+    return apiRequest(`/posts?id=${postId}`, {
+      method: 'DELETE',
+    });
+  },
+
   getComments(postId) {
     return apiRequest(`/comments?postId=${postId}`);
   },

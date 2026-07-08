@@ -56,6 +56,17 @@ public class PostController extends HttpServlet {
             }
 
             Post newPost = objectMapper.readValue(request.getReader(), Post.class);
+            if (newPost.getTitle() == null || newPost.getTitle().trim().isEmpty()
+                    || newPost.getContent() == null || newPost.getContent().trim().isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                jsonResponse.put("success", false);
+                jsonResponse.put("message", "Title and content are required.");
+                objectMapper.writeValue(response.getWriter(), jsonResponse);
+                return;
+            }
+
+            newPost.setTitle(newPost.getTitle().trim());
+            newPost.setContent(newPost.getContent().trim());
             newPost.setUserId(authenticatedUserId);
 
             int postId = postService.createPost(newPost);
@@ -65,9 +76,9 @@ public class PostController extends HttpServlet {
                 jsonResponse.put("message", "Post created successfully!");
                 jsonResponse.put("postId", postId);
             } else {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 jsonResponse.put("success", false);
-                jsonResponse.put("message", "Failed to create post. Title and content are required.");
+                jsonResponse.put("message", "Failed to create post due to a database error.");
             }
         } catch (IOException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -77,6 +88,57 @@ public class PostController extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             jsonResponse.put("success", false);
             jsonResponse.put("message", "Server error while creating post.");
+        }
+
+        objectMapper.writeValue(response.getWriter(), jsonResponse);
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        Map<String, Object> jsonResponse = new HashMap<>();
+
+        try {
+            Integer authenticatedUserId = (Integer) request.getAttribute("authenticatedUserId");
+            if (authenticatedUserId == null || authenticatedUserId <= 0) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                jsonResponse.put("success", false);
+                jsonResponse.put("message", "Authentication required.");
+                objectMapper.writeValue(response.getWriter(), jsonResponse);
+                return;
+            }
+
+            String postIdStr = request.getParameter("id");
+            if (postIdStr == null || postIdStr.trim().isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                jsonResponse.put("success", false);
+                jsonResponse.put("message", "Post ID is required.");
+                objectMapper.writeValue(response.getWriter(), jsonResponse);
+                return;
+            }
+
+            int postId = Integer.parseInt(postIdStr);
+            if (postService.deletePost(postId, authenticatedUserId)) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                jsonResponse.put("success", true);
+                jsonResponse.put("message", "Post deleted successfully!");
+            } else {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                jsonResponse.put("success", false);
+                jsonResponse.put("message", "You cannot delete this post or it does not exist.");
+            }
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            jsonResponse.put("success", false);
+            jsonResponse.put("message", "Invalid post ID.");
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            jsonResponse.put("success", false);
+            jsonResponse.put("message", "Server error while deleting post.");
         }
 
         objectMapper.writeValue(response.getWriter(), jsonResponse);

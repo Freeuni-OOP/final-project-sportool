@@ -3,106 +3,7 @@ import HeroVisual from '../components/HeroVisual.jsx';
 import Navbar from '../components/Navbar.jsx';
 import Ticker from '../components/Ticker.jsx';
 import { apiClient, getStoredAuth } from '../api/client';
-
-
-function PostComments({ postId, auth }) {
-  const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState('');
-
-  const fetchComments = async () => {
-    try {
-      const data = await apiClient.getComments(postId);
-      setComments(data || []);
-    } catch (err) {
-      console.error("Error fetching comments:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchComments();
-  }, [postId]);
-
-  const handleSendComment = async (e) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
-
-    try {
-      const response = await apiClient.createComment({
-        postId: postId,
-        content: newComment
-      });
-
-      if (response && response.success) {
-        setNewComment('');
-        fetchComments();
-      }
-    } catch (err) {
-      alert("Error sending comment");
-    }
-  };
-
-  const handleDeleteComment = async (commentId) => {
-    if (!window.confirm("Are you sure you want to delete this comment?")) return;
-
-    try {
-      const response = await apiClient.deleteComment(commentId);
-      if (response && response.success) {
-        fetchComments();
-      } else if (response && response.message) {
-        alert(response.message);
-      }
-    } catch (err) {
-      console.error("Error deleting comment:", err);
-    }
-  };
-
-  return (
-      <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #222' }}>
-        <h4 style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '0.75rem' }}>
-          Comments ({comments.length})
-        </h4>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-          {comments.map((c) => (
-              <div key={c.id} style={{ background: '#1a1a1e', padding: '0.6rem 0.8rem', borderRadius: '6px', fontSize: '0.85rem', position: 'relative' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                  <span style={{ color: '#3b82f6', fontWeight: '600' }}>{c.userFullName}</span>
-                  <span style={{ color: '#555', fontSize: '0.7rem', marginRight: auth.userId === c.userId ? '1.5rem' : '0' }}>
-                    {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : ''}
-                  </span>
-                </div>
-                <p style={{ color: '#ccc', margin: 0 }}>{c.content}</p>
-
-                {auth.userId === c.userId && (
-                    <button
-                        onClick={() => handleDeleteComment(c.id)}
-                        style={{ position: 'absolute', right: '0.5rem', top: '0.5rem', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem' }}
-                        title="Delete comment"
-                    >
-                      🗑️
-                    </button>
-                )}
-              </div>
-          ))}
-        </div>
-
-        <form onSubmit={handleSendComment} style={{ display: 'flex', gap: '0.5rem' }}>
-          <input
-              type="text"
-              placeholder="Write a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              style={{ flex: 1, padding: '0.5rem 0.75rem', background: '#1a1a1e', border: '1px solid #333', borderRadius: '6px', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
-              required
-          />
-          <button type="submit" style={{ background: '#3b82f6', color: '#fff', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.85rem', border: 'none', fontWeight: '500', cursor: 'pointer' }}>
-            Send
-          </button>
-        </form>
-      </div>
-  );
-}
-
+import PostCard from '../components/PostCard.jsx';
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -146,6 +47,10 @@ export default function Home() {
     } catch (err) {
       alert(err.message || 'Error creating post.');
     }
+  };
+
+  const removePostFromFeed = (postId) => {
+    setPosts((currentPosts) => currentPosts.filter((post) => post.id !== postId));
   };
 
   return (
@@ -217,32 +122,9 @@ export default function Home() {
                       <p style={{ color: '#888' }}>No posts available yet.</p>
                   )}
 
-                  {posts.map((post) => {
-                    const isMyPost = auth.userId === post.userId;
-
-                    return (
-                        <div key={post.id} style={{ background: '#121214', padding: '1.5rem', borderRadius: '12px', border: '1px solid #222' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#fff' }}>{post.title}</h3>
-                            {isMyPost ? (
-                                <span style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#3b82f6', padding: '0.25rem 0.6rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '600' }}>
-                              My Post 👤
-                            </span>
-                            ) : (
-                                <span style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#aaa', padding: '0.25rem 0.6rem', borderRadius: '4px', fontSize: '0.75rem' }}>
-                              By Someone Else 🌍
-                            </span>
-                            )}
-                          </div>
-                          <p style={{ color: '#aaa', marginTop: '0.5rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{post.content}</p>
-                          <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end', fontSize: '0.75rem', color: '#666' }}>
-                            <span>{post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-US') : ''}</span>
-                          </div>
-
-                          <PostComments postId={post.id} auth={auth} />
-                        </div>
-                    );
-                  })}
+                  {posts.map((post) => (
+                    <PostCard key={post.id} post={post} onPostDeleted={removePostFromFeed} />
+                  ))}
                 </div>
 
               </div>

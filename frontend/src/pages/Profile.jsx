@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiClient, getStoredAuth } from '../api/client.js';
 import Button from '../components/Button.jsx';
 import Navbar from '../components/Navbar.jsx';
+import PostCard from '../components/PostCard.jsx';
 
 function formatBookingDate(value) {
   if (!value) return '';
@@ -45,8 +46,11 @@ function formatPrice(value) {
 export default function Profile() {
   const session = getStoredAuth();
   const [bookings, setBookings] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [postsLoading, setPostsLoading] = useState(true);
+  const [postsError, setPostsError] = useState('');
 
   useEffect(() => {
     if (!session?.userId) {
@@ -84,12 +88,51 @@ export default function Profile() {
     };
   }, [session?.userId]);
 
+  useEffect(() => {
+    if (!session?.userId) {
+      return undefined;
+    }
+
+    let ignoreResult = false;
+
+    async function loadPosts() {
+      setPostsLoading(true);
+      setPostsError('');
+
+      try {
+        const data = await apiClient.getPosts();
+        const mine = (Array.isArray(data) ? data : []).filter((post) => post.userId === session.userId);
+        if (!ignoreResult) {
+          setPosts(mine);
+        }
+      } catch (requestError) {
+        if (!ignoreResult) {
+          setPostsError(requestError.message || 'Failed to load your posts.');
+          setPosts([]);
+        }
+      } finally {
+        if (!ignoreResult) {
+          setPostsLoading(false);
+        }
+      }
+    }
+
+    loadPosts();
+
+    return () => {
+      ignoreResult = true;
+    };
+  }, [session?.userId]);
+
   if (!session?.userId) {
     return null;
   }
 
   const displayName = session.fullName || 'Player';
   const roleLabel = session.role || 'PLAYER';
+  const removePostFromHistory = (postId) => {
+    setPosts((currentPosts) => currentPosts.filter((post) => post.id !== postId));
+  };
 
   return (
     <main className="app-shell profile-page">
@@ -155,11 +198,32 @@ export default function Profile() {
             <section className="profile-panel profile-panel--muted">
               <div className="profile-panel__header">
                 <h2>My posts</h2>
-                <span>Coming soon</span>
+                <span>{posts.length} total</span>
               </div>
-              <div className="profile-empty">
-                <p>Your community posts will appear here once the posts feature is connected to your profile.</p>
-              </div>
+
+              {postsLoading ? <p className="profile-panel__hint">Loading your posts...</p> : null}
+              {postsError ? <div className="notice notice--error">{postsError}</div> : null}
+
+              {!postsLoading && !postsError && posts.length === 0 ? (
+                <div className="profile-empty">
+                  <p>You haven&apos;t posted anything yet.</p>
+                  <Button href="#home">Create a post</Button>
+                </div>
+              ) : null}
+
+              {!postsLoading && posts.length > 0 ? (
+                <div className="profile-history__list">
+                  {posts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      showComments={false}
+                      expandableComments
+                      onPostDeleted={removePostFromHistory}
+                    />
+                  ))}
+                </div>
+              ) : null}
             </section>
           </div>
         </div>
