@@ -28,6 +28,7 @@ public class DatabaseInitializer implements ServletContextListener {
 
             seedCourtsIfEmpty(conn);
             ensureBookingPaymentColumns(conn);
+            ensureCoachTables(conn);
             seedAdditionalCourts(conn);
         } catch (SQLException e) {
             System.err.println("SporTool database initialization skipped: " + e.getMessage());
@@ -94,6 +95,63 @@ public class DatabaseInitializer implements ServletContextListener {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_status VARCHAR(20) DEFAULT 'PAID'");
             stmt.execute("ALTER TABLE bookings ADD COLUMN IF NOT EXISTS payment_reference VARCHAR(100)");
+        }
+    }
+
+    private void ensureCoachTables(Connection conn) throws SQLException {
+        if (!tableExists(conn, "trainers")) {
+            return;
+        }
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS trainer_profiles (
+                        trainer_id INT PRIMARY KEY REFERENCES trainers(id) ON DELETE CASCADE,
+                        description TEXT,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                    """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS trainer_venues (
+                        id SERIAL PRIMARY KEY,
+                        trainer_id INT NOT NULL REFERENCES trainers(id) ON DELETE CASCADE,
+                        venue_name VARCHAR(255) NOT NULL,
+                        address VARCHAR(255) NOT NULL,
+                        price_override NUMERIC(10, 2)
+                    )
+                    """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS trainer_availability (
+                        id SERIAL PRIMARY KEY,
+                        trainer_venue_id INT NOT NULL REFERENCES trainer_venues(id) ON DELETE CASCADE,
+                        day_of_week VARCHAR(20) NOT NULL,
+                        start_time VARCHAR(10) NOT NULL,
+                        end_time VARCHAR(10) NOT NULL
+                    )
+                    """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS trainer_bookings (
+                        id SERIAL PRIMARY KEY,
+                        trainer_id INT NOT NULL REFERENCES trainers(id) ON DELETE CASCADE,
+                        trainer_venue_id INT NOT NULL REFERENCES trainer_venues(id) ON DELETE CASCADE,
+                        player_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        requested_date DATE NOT NULL,
+                        requested_time_slot VARCHAR(50) NOT NULL,
+                        status VARCHAR(20) DEFAULT 'PENDING',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                    """);
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS trainer_reviews (
+                        id SERIAL PRIMARY KEY,
+                        trainer_id INT NOT NULL REFERENCES trainers(id) ON DELETE CASCADE,
+                        player_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                        comment TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE (trainer_id, player_id)
+                    )
+                    """);
         }
     }
 

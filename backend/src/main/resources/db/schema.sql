@@ -45,6 +45,54 @@ CREATE TABLE IF NOT EXISTS trainers (
     review_count INT DEFAULT 0
     );
 
+-- trainer profiles (coach bio)
+CREATE TABLE IF NOT EXISTS trainer_profiles (
+    trainer_id INT PRIMARY KEY REFERENCES trainers(id) ON DELETE CASCADE,
+    description TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+-- trainer venues
+CREATE TABLE IF NOT EXISTS trainer_venues (
+    id SERIAL PRIMARY KEY,
+    trainer_id INT NOT NULL REFERENCES trainers(id) ON DELETE CASCADE,
+    venue_name VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    price_override NUMERIC(10, 2)
+    );
+
+-- trainer availability slots
+CREATE TABLE IF NOT EXISTS trainer_availability (
+    id SERIAL PRIMARY KEY,
+    trainer_venue_id INT NOT NULL REFERENCES trainer_venues(id) ON DELETE CASCADE,
+    day_of_week VARCHAR(20) NOT NULL,
+    start_time VARCHAR(10) NOT NULL,
+    end_time VARCHAR(10) NOT NULL
+    );
+
+-- trainer session booking requests
+CREATE TABLE IF NOT EXISTS trainer_bookings (
+    id SERIAL PRIMARY KEY,
+    trainer_id INT NOT NULL REFERENCES trainers(id) ON DELETE CASCADE,
+    trainer_venue_id INT NOT NULL REFERENCES trainer_venues(id) ON DELETE CASCADE,
+    player_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    requested_date DATE NOT NULL,
+    requested_time_slot VARCHAR(50) NOT NULL,
+    status VARCHAR(20) DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+-- trainer reviews
+CREATE TABLE IF NOT EXISTS trainer_reviews (
+    id SERIAL PRIMARY KEY,
+    trainer_id INT NOT NULL REFERENCES trainers(id) ON DELETE CASCADE,
+    player_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (trainer_id, player_id)
+    );
+
 
 -- bookings table
 CREATE TABLE IF NOT EXISTS bookings (
