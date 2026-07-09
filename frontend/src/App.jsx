@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import CoachDashboard from './pages/CoachDashboard.jsx';
 import Coaches from './pages/Coaches.jsx';
 import Community from './pages/Community.jsx';
 import Courts from './pages/Courts.jsx';
@@ -9,7 +10,7 @@ import Profile from './pages/Profile.jsx';
 import SignUp from './pages/SignUp.jsx';
 import Tournaments from './pages/Tournaments.jsx';
 
-const routedPages = new Set(['login', 'signup', 'dashboard', 'matches', 'tournaments', 'coaches', 'community', 'profile']);
+const routedPages = new Set(['login', 'signup', 'dashboard', 'coach-dashboard', 'matches', 'tournaments', 'coaches', 'community', 'profile']);
 
 function getCurrentPage() {
   const page = window.location.hash.replace('#', '').split('?')[0];
@@ -31,6 +32,7 @@ export default function App() {
   if (page === 'login') return <Login />;
   if (page === 'signup') return <SignUp />;
   if (page === 'dashboard') return <Courts />;
+  if (page === 'coach-dashboard') return <CoachDashboard />;
   if (page === 'matches') return <Matches />;
   if (page === 'tournaments') return <Tournaments />;
   if (page === 'coaches') return <Coaches />;

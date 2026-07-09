@@ -3,7 +3,7 @@ import { clearAuthSession, getStoredAuth } from '../api/client.js';
 import Button from './Button.jsx';
 import ProfileDropdown from './ProfileDropdown.jsx';
 
-const navLinks = [
+const baseNavLinks = [
   { label: 'Home', href: '#home' },
   { label: 'Courts', href: '#dashboard' },
   { label: 'Matches', href: '#matches' },
@@ -34,6 +34,10 @@ export default function Navbar() {
     window.location.hash = 'home';
     window.location.reload();
   }
+
+  const navLinks = authSession?.role === 'COACH'
+    ? [...baseNavLinks, { label: 'Dashboard', href: '#coach-dashboard' }]
+    : baseNavLinks;
 
   return (
     <header className="site-header">

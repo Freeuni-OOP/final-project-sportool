@@ -29,6 +29,7 @@ export function saveAuthSession(authResponse) {
     fullName: authResponse?.fullName || '',
     role: authResponse?.role || '',
     userId: authResponse?.userId || null,
+    trainerId: authResponse?.trainerId || null,
     loginAt: new Date().toISOString(),
     hasToken: true,
   };
@@ -195,6 +196,85 @@ export const apiClient = {
   deleteComment(commentId) {
     return apiRequest(`/comments?id=${commentId}`, {
       method: 'DELETE',
+    });
+  },
+
+  getTrainers() {
+    return apiRequest('/trainers');
+  },
+
+  getTrainer(trainerId) {
+    return apiRequest(`/trainers/${trainerId}`);
+  },
+
+  getMyTrainerProfile() {
+    return apiRequest('/trainers/me');
+  },
+
+  updateMyTrainerProfile(payload) {
+    return apiRequest('/trainers/me', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  updateMyTrainerDescription(description) {
+    return apiRequest('/trainer-profile/me', {
+      method: 'PUT',
+      body: JSON.stringify({ description }),
+    });
+  },
+
+  createTrainerVenue(payload) {
+    return apiRequest('/trainer-venues', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  updateTrainerVenue(payload) {
+    return apiRequest('/trainer-venues', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  deleteTrainerVenue(venueId) {
+    return apiRequest(`/trainer-venues/${venueId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  createTrainerBooking(payload) {
+    return apiRequest('/trainer-bookings', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  getMyTrainerBookings() {
+    return apiRequest('/trainer-bookings');
+  },
+
+  getTrainerIncomingBookings() {
+    return apiRequest('/trainer-bookings?forTrainer=true');
+  },
+
+  updateTrainerBookingStatus(bookingId, status) {
+    return apiRequest(`/trainer-bookings/${bookingId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  getTrainerReviews(trainerId) {
+    return apiRequest(`/trainer-reviews?trainerId=${trainerId}`);
+  },
+
+  createTrainerReview(payload) {
+    return apiRequest('/trainer-reviews', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   },
 };
