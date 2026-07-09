@@ -98,6 +98,492 @@ select {
   padding: 56px 0;
 }
 
+.coaches__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.coaches__filter {
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-muted);
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.coaches__filter.is-active {
+  color: #071116;
+  background: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+.coaches__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.coach-detail {
+  margin-top: 20px;
+}
+
+.coach-detail__grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+  margin-top: 18px;
+}
+
+.coach-detail__grid--reviews {
+  margin-top: 20px;
+}
+
+.coach-detail__grid > * {
+  min-width: 0;
+}
+
+.coach-detail select,
+.coach-detail input,
+.coach-detail textarea {
+  min-width: 0;
+  width: 100%;
+}
+
+.coach-slot-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.coach-slot-pill {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.coach-reviews {
+  display: grid;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.coach-card h2,
+.coach-detail h2,
+.coach-detail h3 {
+  margin: 0 0 10px;
+}
+
+.coach-detail h3 {
+  margin-top: 0;
+}
+
+.coach-detail .profile-panel__hint {
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+.coach-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 8px;
+}
+
+.coach-detail__subtitle {
+  margin: 0;
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+
+.coach-detail__bio {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.coach-detail__bio-label {
+  margin: 0 0 10px;
+  color: var(--color-lime);
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.coach-detail__bio-text {
+  margin: 0;
+  color: var(--color-white);
+  line-height: 1.7;
+}
+
+.coach-venue-card--spaced {
+  margin-top: 14px;
+}
+
+.coach-review-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.coach-review-card__rating {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: var(--color-lime);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.coach-review-card__comment {
+  margin: 12px 0 0;
+  color: var(--color-muted);
+  line-height: 1.65;
+}
+
+.coach-review-card {
+  padding: 16px 18px;
+  border-radius: 22px;
+}
+
+.coach-review-card + .coach-review-card {
+  margin-top: 2px;
+}
+
+/* Coaches header helper panels (used by Coaches.jsx) */
+.info-page__grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.info-panel {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.info-panel > span {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.info-panel > strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.info-panel > p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.65;
+}
+
+.coaches__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 6vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 920px) {
+  .info-page__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.coach-venue-card strong {
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.coach-venue-card p {
+  margin: 6px 0;
+}
+
+.coach-detail textarea {
+  resize: vertical;
+}
+
+.coach-venue-editor {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+}
+
+.coach-venue-editor__left,
+.coach-venue-editor__right {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.coach-venue-editor__right {
+  align-content: start;
+}
+
+.coach-form__slots {
+  display: grid;
+  gap: 10px;
+}
+
+.coach-form__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.coach-form__actions--sticky {
+  margin-top: 10px;
+}
+
+.coach-venue-editor__summary {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.coach-venue-editor__hint {
+  margin: 8px 0 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.coach-slot-list--compact {
+  margin-top: 10px;
+}
+
+.coach-panel--profile .coach-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.coach-panel--profile .field input,
+.coach-panel--profile .field select {
+  width: 100%;
+  min-width: 0;
+}
+
+.coach-booking-list {
+  display: grid;
+  gap: 12px;
+}
+
+.coach-booking-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.coach-booking-card__actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.coach-booking-card__actions .btn {
+  white-space: nowrap;
+}
+
+.coach-requests {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.coach-request-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.coach-request-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.coach-request-card__status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+.coach-request-card__status.is-pending {
+  border-color: rgba(204, 255, 0, 0.35);
+  color: var(--color-lime);
+}
+
+.coach-request-card__status.is-confirmed {
+  border-color: rgba(87, 255, 171, 0.28);
+  color: rgba(87, 255, 171, 0.9);
+}
+
+.coach-request-card__status.is-declined {
+  border-color: rgba(255, 106, 106, 0.28);
+  color: rgba(255, 106, 106, 0.9);
+}
+
+.coach-request-card__price {
+  margin: 0;
+  color: var(--color-white);
+  font-weight: 700;
+}
+
+.coach-request-card__player {
+  margin: 0 0 6px;
+}
+
+.coach-request-card__meta {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.45;
+}
+
+.coach-request-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.coach-request-card__hint {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.coach-dashboard__layout {
+  display: grid;
+  gap: 18px;
+}
+
+.coach-dashboard__columns {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.coach-dashboard__right {
+  display: grid;
+  gap: 18px;
+}
+
+.coach-profile__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.coach-form--compact {
+  display: grid;
+  gap: 14px;
+}
+
+.coach-form__grid--tight {
+  gap: 12px;
+}
+
+.coach-form__span-2 {
+  grid-column: 1 / -1;
+}
+
+.coach-venue-mini {
+  border-top: 1px solid var(--color-border);
+  padding-top: 14px;
+}
+
+.coach-venue-mini__list {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.coach-venue-mini__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.coach-venue-mini__meta {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.coach-venue-mini__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 920px) {
+  .coach-detail__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .coach-venue-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .coach-dashboard__columns {
+    grid-template-columns: 1fr;
+  }
+
+  .coach-request-card {
+    grid-template-columns: 1fr;
+  }
+
+  .coach-request-card__actions {
+    justify-content: flex-start;
+  }
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -2251,6 +2737,7 @@ select {
   display: grid;
   gap: 24px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
 }
 
 .profile-panel {
@@ -2260,6 +2747,7 @@ select {
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.03);
   padding: 24px;
+  align-content: start;
 }
 
 .profile-panel--muted {
@@ -2302,6 +2790,11 @@ select {
   border: 1px dashed var(--color-border);
   border-radius: 18px;
   padding: 24px;
+  max-width: 460px;
+}
+
+.profile-empty .btn {
+  min-width: 180px;
 }
 
 .profile-empty p {

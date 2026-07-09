@@ -46,9 +46,12 @@ function formatPrice(value) {
 export default function Profile() {
   const session = getStoredAuth();
   const [bookings, setBookings] = useState([]);
+  const [trainerBookings, setTrainerBookings] = useState([]);
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [trainerBookingsLoading, setTrainerBookingsLoading] = useState(true);
+  const [trainerBookingsError, setTrainerBookingsError] = useState('');
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState('');
 
@@ -87,6 +90,43 @@ export default function Profile() {
       ignoreResult = true;
     };
   }, [session?.userId]);
+
+  useEffect(() => {
+    if (!session?.userId) {
+      return undefined;
+    }
+
+    let ignoreResult = false;
+
+    async function loadTrainerBookings() {
+      setTrainerBookingsLoading(true);
+      setTrainerBookingsError('');
+
+      try {
+        const response = session?.role === 'COACH'
+          ? await apiClient.getTrainerIncomingBookings()
+          : await apiClient.getMyTrainerBookings();
+        if (!ignoreResult) {
+          setTrainerBookings(Array.isArray(response) ? response : []);
+        }
+      } catch (requestError) {
+        if (!ignoreResult) {
+          setTrainerBookingsError(requestError.message);
+          setTrainerBookings([]);
+        }
+      } finally {
+        if (!ignoreResult) {
+          setTrainerBookingsLoading(false);
+        }
+      }
+    }
+
+    loadTrainerBookings();
+
+    return () => {
+      ignoreResult = true;
+    };
+  }, [session?.userId, session?.role]);
 
   useEffect(() => {
     if (!session?.userId) {
@@ -188,6 +228,50 @@ export default function Profile() {
                       <div className="profile-booking-card__meta">
                         <strong>{formatPrice(booking.totalPrice)}</strong>
                         <small>{booking.paymentStatus || 'PAID'}</small>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+
+            <section className="profile-panel">
+              <div className="profile-panel__header">
+                <h2>{session?.role === 'COACH' ? 'Incoming coach requests' : 'Coach session requests'}</h2>
+                <span>{trainerBookings.length} total</span>
+              </div>
+
+              {trainerBookingsLoading ? (
+                <p className="profile-panel__hint">Loading coach session requests...</p>
+              ) : null}
+              {trainerBookingsError ? <div className="notice notice--error">{trainerBookingsError}</div> : null}
+
+              {!trainerBookingsLoading && !trainerBookingsError && trainerBookings.length === 0 ? (
+                <div className="profile-empty">
+                  <p>No coach session requests yet.</p>
+                  <Button href="#coaches">Browse coaches</Button>
+                </div>
+              ) : null}
+
+              {!trainerBookingsLoading && trainerBookings.length > 0 ? (
+                <div className="profile-bookings">
+                  {trainerBookings.map((booking) => (
+                    <article className="profile-booking-card" key={`trainer-${booking.id}`}>
+                      <div className="profile-booking-card__main">
+                        <div className="profile-booking-card__top">
+                          <p className="profile-booking-card__eyebrow">{booking.sportType}</p>
+                          <span className="profile-booking-card__status">{booking.status || 'PENDING'}</span>
+                        </div>
+                        <h3>{booking.trainerName}</h3>
+                        <p className="profile-booking-card__location">{booking.venueName}</p>
+                        <p className="profile-booking-card__schedule">
+                          {formatBookingDate(booking.requestedDate)}
+                          {booking.requestedTimeSlot ? ` · ${booking.requestedTimeSlot}` : ''}
+                        </p>
+                      </div>
+                      <div className="profile-booking-card__meta">
+                        <strong>{formatPrice(booking.sessionPrice)}</strong>
+                        <small>Coach session</small>
                       </div>
                     </article>
                   ))}

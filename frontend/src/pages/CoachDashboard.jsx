@@ -285,15 +285,16 @@ export default function CoachDashboard() {
           {success ? <div className="notice notice--success">{success}</div> : null}
 
           {!isLoading ? (
-            <div className="coach-dashboard__grid">
-              <section className="coach-panel">
+            <div className="coach-dashboard__layout">
+              <div className="coach-dashboard__columns">
+                <section className="coach-panel coach-panel--profile">
                 <div className="coach-panel__header">
                   <h2>Trainer profile</h2>
                   <span>{trainer?.sportType}</span>
                 </div>
 
-                <form className="coach-form" onSubmit={handleSaveProfile}>
-                  <div className="coach-form__grid">
+                <form className="coach-form coach-form--compact" onSubmit={handleSaveProfile}>
+                  <div className="coach-profile__row">
                     <label className="field">
                       <span>First name</span>
                       <input
@@ -314,6 +315,9 @@ export default function CoachDashboard() {
                         }))}
                       />
                     </label>
+                  </div>
+
+                  <div className="coach-form__grid coach-form__grid--tight">
                     <label className="field">
                       <span>Phone</span>
                       <input
@@ -334,7 +338,7 @@ export default function CoachDashboard() {
                         }))}
                       />
                     </label>
-                    <label className="field">
+                    <label className="field coach-form__span-2">
                       <span>Base price per session</span>
                       <input
                         type="number"
@@ -348,190 +352,185 @@ export default function CoachDashboard() {
                       />
                     </label>
                   </div>
+
                   <Button type="submit" disabled={isSavingProfile}>
                     {isSavingProfile ? 'Saving...' : 'Save profile'}
                   </Button>
                 </form>
-              </section>
+                </section>
 
-              <section className="coach-panel">
-                <div className="coach-panel__header">
-                  <h2>Coach description</h2>
-                  <span>Public</span>
-                </div>
+                <div className="coach-dashboard__right">
+                  <section className="coach-panel coach-panel--bio">
+                    <div className="coach-panel__header">
+                      <h2>Bio</h2>
+                      <span>Public</span>
+                    </div>
 
-                <form className="coach-form" onSubmit={handleSaveDescription}>
-                  <label className="field">
-                    <span>Bio</span>
-                    <textarea
-                      rows={6}
-                      value={description}
-                      onChange={(event) => setDescription(event.target.value)}
-                      placeholder="Tell players what you focus on, your experience, certifications, and what sessions look like."
-                    />
-                  </label>
-                  <Button type="submit" disabled={isSavingDescription}>
-                    {isSavingDescription ? 'Saving...' : 'Save description'}
-                  </Button>
-                </form>
-              </section>
-
-              <section className="coach-panel coach-panel--wide">
-                <div className="coach-panel__header">
-                  <h2>{editingVenueId ? 'Edit venue' : 'Add venue'}</h2>
-                  <span>{venues.length} venues</span>
-                </div>
-
-                <form className="coach-form" onSubmit={handleSaveVenue}>
-                  <label className="field">
-                    <span>Venue name</span>
-                    <input
-                      required
-                      value={venueForm.venueName}
-                      onChange={(event) => setVenueForm((current) => ({
-                        ...current,
-                        venueName: event.target.value,
-                      }))}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Address</span>
-                    <input
-                      value={venueForm.address}
-                      onChange={(event) => setVenueForm((current) => ({
-                        ...current,
-                        address: event.target.value,
-                      }))}
-                    />
-                  </label>
-                  <label className="field">
-                    <span>Price override (optional)</span>
-                    <input
-                      type="number"
-                      min="1"
-                      step="0.01"
-                      placeholder="Same as base price"
-                      value={venueForm.priceOverride}
-                      onChange={(event) => setVenueForm((current) => ({
-                        ...current,
-                        priceOverride: event.target.value,
-                      }))}
-                    />
-                  </label>
-
-                  <div className="coach-form__slots">
-                    <p className="coach-form__label">Availability slots</p>
-                    <div className="coach-form__grid">
+                    <form className="coach-form coach-form--compact" onSubmit={handleSaveDescription}>
                       <label className="field">
-                        <span>Day</span>
-                        <select
-                          value={venueForm.dayOfWeek}
-                          onChange={(event) => setVenueForm((current) => ({
-                            ...current,
-                            dayOfWeek: event.target.value,
-                          }))}
-                        >
-                          {DAYS.map((day) => (
-                            <option key={day} value={day}>{day}</option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="field">
-                        <span>Start</span>
-                        <input
-                          type="time"
-                          value={venueForm.startTime}
-                          onChange={(event) => setVenueForm((current) => ({
-                            ...current,
-                            startTime: event.target.value,
-                          }))}
+                        <span>About me</span>
+                        <textarea
+                          rows={4}
+                          value={description}
+                          onChange={(event) => setDescription(event.target.value)}
+                          placeholder="Short coach intro shown to players."
                         />
                       </label>
-                      <label className="field">
-                        <span>End</span>
-                        <input
-                          type="time"
-                          value={venueForm.endTime}
-                          onChange={(event) => setVenueForm((current) => ({
-                            ...current,
-                            endTime: event.target.value,
-                          }))}
-                        />
-                      </label>
-                    </div>
-                    <Button type="button" variant="outline" onClick={addSlotToForm}>
-                      Add slot
-                    </Button>
-                  </div>
-
-                  {editingSlots.length > 0 ? (
-                    <div className="coach-slot-list">
-                      {editingSlots.map((slot, index) => (
-                        <div className="coach-slot-list__item" key={`${slot.dayOfWeek}-${slot.startTime}-${index}`}>
-                          <span>{slot.dayOfWeek} · {slot.startTime} – {slot.endTime}</span>
-                          <button type="button" onClick={() => removeSlot(index)}>Remove</button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-
-                  <div className="coach-form__actions">
-                    <Button type="submit" disabled={isSavingVenue}>
-                      {isSavingVenue ? 'Saving...' : editingVenueId ? 'Update venue' : 'Create venue'}
-                    </Button>
-                    {editingVenueId ? (
-                      <Button type="button" variant="outline" onClick={resetVenueForm}>
-                        Cancel edit
+                      <Button type="submit" disabled={isSavingDescription}>
+                        {isSavingDescription ? 'Saving...' : 'Save bio'}
                       </Button>
-                    ) : null}
-                  </div>
-                </form>
-              </section>
+                    </form>
+                  </section>
 
-              <section className="coach-panel coach-panel--wide">
-                <div className="coach-panel__header">
-                  <h2>Your venues</h2>
-                </div>
+                  <section className="coach-panel coach-panel--slot">
+                    <div className="coach-panel__header">
+                      <h2>{editingVenueId ? 'Edit venue' : 'Add slot'}</h2>
+                      <span>{venues.length} venues</span>
+                    </div>
 
-                {venues.length === 0 ? (
-                  <div className="coach-empty">
-                    <p>No venues published yet.</p>
-                  </div>
-                ) : (
-                  <div className="coach-venue-list">
-                    {venues.map((venue) => (
-                      <article className="coach-venue-card" key={venue.id}>
-                        <div>
-                          <h3>{venue.venueName}</h3>
-                          <p>{venue.address || 'No address provided'}</p>
-                          <p className="coach-venue-card__price">
-                            {venue.priceOverride != null
-                              ? `₾${venue.priceOverride}`
-                              : `Same as base price (₾${trainer?.pricePerSession || 0})`}
-                          </p>
-                          <div className="coach-slot-list">
-                            {(venue.availability || []).map((slot, index) => (
-                              <span className="coach-slot-pill" key={`${venue.id}-${index}`}>
-                                {slot.dayOfWeek} {slot.startTime}-{slot.endTime}
-                              </span>
+                    <form className="coach-form coach-form--compact" onSubmit={handleSaveVenue}>
+                      <div className="coach-venue-editor">
+                        <div className="coach-venue-editor__left">
+                          <label className="field">
+                            <span>Venue</span>
+                            <input
+                              required
+                              value={venueForm.venueName}
+                              onChange={(event) => setVenueForm((current) => ({
+                                ...current,
+                                venueName: event.target.value,
+                              }))}
+                            />
+                          </label>
+                          <label className="field">
+                            <span>Address</span>
+                            <input
+                              value={venueForm.address}
+                              onChange={(event) => setVenueForm((current) => ({
+                                ...current,
+                                address: event.target.value,
+                              }))}
+                            />
+                          </label>
+
+                          <div className="coach-venue-editor__summary">
+                            <p className="coach-form__label">Slots to publish</p>
+                            {editingSlots.length === 0 ? (
+                              <p className="coach-venue-editor__hint">
+                                Add at least one day/time slot. You can stack multiple slots before publishing.
+                              </p>
+                            ) : (
+                              <div className="coach-slot-list coach-slot-list--compact">
+                                {editingSlots.map((slot, index) => (
+                                  <div className="coach-slot-list__item" key={`${slot.dayOfWeek}-${slot.startTime}-${index}`}>
+                                    <span>{slot.dayOfWeek} · {slot.startTime} – {slot.endTime}</span>
+                                    <button type="button" onClick={() => removeSlot(index)}>Remove</button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="coach-form__actions coach-form__actions--sticky">
+                            <Button type="submit" disabled={isSavingVenue}>
+                              {isSavingVenue ? 'Saving...' : editingVenueId ? 'Update venue' : 'Publish slot'}
+                            </Button>
+                            {editingVenueId ? (
+                              <Button type="button" variant="outline" onClick={resetVenueForm}>
+                                Cancel
+                              </Button>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        <div className="coach-venue-editor__right">
+                          <label className="field">
+                            <span>Price</span>
+                            <input
+                              type="number"
+                              min="1"
+                              step="0.01"
+                              placeholder="Same as base"
+                              value={venueForm.priceOverride}
+                              onChange={(event) => setVenueForm((current) => ({
+                                ...current,
+                                priceOverride: event.target.value,
+                              }))}
+                            />
+                          </label>
+
+                          <div className="coach-form__slots">
+                            <p className="coach-form__label">Day + time</p>
+                            <div className="coach-form__grid coach-form__grid--tight">
+                              <label className="field">
+                                <span>Day</span>
+                                <select
+                                  value={venueForm.dayOfWeek}
+                                  onChange={(event) => setVenueForm((current) => ({
+                                    ...current,
+                                    dayOfWeek: event.target.value,
+                                  }))}
+                                >
+                                  {DAYS.map((day) => (
+                                    <option key={day} value={day}>{day}</option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className="field">
+                                <span>Start</span>
+                                <input
+                                  type="time"
+                                  value={venueForm.startTime}
+                                  onChange={(event) => setVenueForm((current) => ({
+                                    ...current,
+                                    startTime: event.target.value,
+                                  }))}
+                                />
+                              </label>
+                              <label className="field">
+                                <span>End</span>
+                                <input
+                                  type="time"
+                                  value={venueForm.endTime}
+                                  onChange={(event) => setVenueForm((current) => ({
+                                    ...current,
+                                    endTime: event.target.value,
+                                  }))}
+                                />
+                              </label>
+                            </div>
+                            <Button type="button" variant="outline" onClick={addSlotToForm}>
+                              Add slot
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {venues.length > 0 ? (
+                        <div className="coach-venue-mini">
+                          <p className="coach-form__label">Your venues</p>
+                          <div className="coach-venue-mini__list">
+                            {venues.map((venue) => (
+                              <div className="coach-venue-mini__item" key={venue.id}>
+                                <div>
+                                  <strong>{venue.venueName}</strong>
+                                  <p className="coach-venue-mini__meta">{venue.address || 'No address'}</p>
+                                </div>
+                                <div className="coach-venue-mini__actions">
+                                  <Button variant="outline" onClick={() => startEditVenue(venue)}>Edit</Button>
+                                  <Button variant="ghost" onClick={() => handleDeleteVenue(venue.id)}>Delete</Button>
+                                </div>
+                              </div>
                             ))}
                           </div>
                         </div>
-                        <div className="coach-venue-card__actions">
-                          <Button variant="outline" onClick={() => startEditVenue(venue)}>
-                            Edit
-                          </Button>
-                          <Button variant="ghost" onClick={() => handleDeleteVenue(venue.id)}>
-                            Delete
-                          </Button>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </section>
+                      ) : null}
+                    </form>
+                  </section>
+                </div>
+              </div>
 
-              <section className="coach-panel coach-panel--wide">
+              <section className="coach-panel coach-panel--wide coach-panel--requests">
                 <div className="coach-panel__header">
                   <h2>Incoming booking requests</h2>
                   <span>{bookings.length} total</span>
@@ -542,35 +541,52 @@ export default function CoachDashboard() {
                     <p>No booking requests yet.</p>
                   </div>
                 ) : (
-                  <div className="coach-booking-list">
+                  <div className="coach-requests">
                     {bookings.map((booking) => (
-                      <article className="coach-booking-card" key={booking.id}>
-                        <div>
-                          <p className="coach-booking-card__eyebrow">{booking.status}</p>
-                          <h3>{booking.playerName}</h3>
-                          <p>{booking.venueName} · {booking.venueAddress}</p>
-                          <p>
+                      <article className="coach-request-card" key={booking.id}>
+                        <div className="coach-request-card__main">
+                          <div className="coach-request-card__top">
+                            <p className={`coach-request-card__status is-${String(booking.status || 'PENDING').toLowerCase()}`}>
+                              {booking.status || 'PENDING'}
+                            </p>
+                          <p className="coach-request-card__price">
+                            ₾{Number.isFinite(Number(booking.sessionPrice)) ? Number(booking.sessionPrice) : 0}
+                          </p>
+                          </div>
+
+                          <h3 className="coach-request-card__player">{booking.playerName}</h3>
+                          <p className="coach-request-card__meta">
+                            {booking.venueName}{booking.venueAddress ? ` · ${booking.venueAddress}` : ''}
+                          </p>
+                          <p className="coach-request-card__meta">
                             {formatDate(booking.requestedDate)}
                             {booking.requestedTimeSlot ? ` · ${booking.requestedTimeSlot}` : ''}
                           </p>
                         </div>
-                        {booking.status === 'PENDING' ? (
-                          <div className="coach-booking-card__actions">
-                            <Button
-                              disabled={updatingBookingId === booking.id}
-                              onClick={() => handleBookingStatus(booking.id, 'CONFIRMED')}
-                            >
-                              Confirm
-                            </Button>
-                            <Button
-                              variant="outline"
-                              disabled={updatingBookingId === booking.id}
-                              onClick={() => handleBookingStatus(booking.id, 'DECLINED')}
-                            >
-                              Decline
-                            </Button>
-                          </div>
-                        ) : null}
+
+                        <div className="coach-request-card__actions">
+                          {booking.status === 'PENDING' ? (
+                            <>
+                              <Button
+                                disabled={updatingBookingId === booking.id}
+                                onClick={() => handleBookingStatus(booking.id, 'CONFIRMED')}
+                              >
+                                Confirm
+                              </Button>
+                              <Button
+                                variant="outline"
+                                disabled={updatingBookingId === booking.id}
+                                onClick={() => handleBookingStatus(booking.id, 'DECLINED')}
+                              >
+                                Decline
+                              </Button>
+                            </>
+                          ) : (
+                            <span className="coach-request-card__hint">
+                              No actions
+                            </span>
+                          )}
+                        </div>
                       </article>
                     ))}
                   </div>

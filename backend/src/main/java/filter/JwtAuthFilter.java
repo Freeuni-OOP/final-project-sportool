@@ -84,8 +84,17 @@ public class JwtAuthFilter implements Filter {
         }
         if (path.equals("/api/posts")
                 || path.equals("/api/courts")
-                || path.startsWith("/api/trainers")) {
+                ) {
             return true;
+        }
+        if (path.startsWith("/api/trainers")) {
+            return !"/api/trainers/me".equals(path);
+        }
+        if (path.equals("/api/trainer-venues")) {
+            return request.getParameter("trainerId") != null;
+        }
+        if (path.equals("/api/trainer-reviews")) {
+            return request.getParameter("trainerId") != null;
         }
         if (path.equals("/api/bookings")) {
             return isPublicBookingAvailabilityRequest(request);
