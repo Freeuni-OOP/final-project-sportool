@@ -36,7 +36,10 @@ export default function Navbar() {
   }
 
   const navLinks = authSession?.role === 'COACH'
-    ? [...baseNavLinks, { label: 'Dashboard', href: '#coach-dashboard' }]
+    ? [
+        ...baseNavLinks.filter((link) => link.href !== '#matches' && link.href !== '#coaches'),
+        { label: 'Dashboard', href: '#coach-dashboard' },
+      ]
     : baseNavLinks;
 
   return (
