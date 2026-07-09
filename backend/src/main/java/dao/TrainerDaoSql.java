@@ -90,6 +90,50 @@ public class TrainerDaoSql implements TrainerDao {
         return null;
     }
 
+    @Override
+    public Trainer getTrainerByUserId(int userId) {
+        String sql = "SELECT * FROM trainers WHERE user_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public boolean updateTrainer(Trainer trainer) {
+        String sql = "UPDATE trainers SET first_name = ?, last_name = ?, phone = ?, " +
+                "sport_type = ?, price_per_session = ? WHERE id = ? AND user_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, trainer.getFirstName());
+            stmt.setString(2, trainer.getLastName());
+            stmt.setString(3, trainer.getPhone());
+            stmt.setString(4, trainer.getSportType());
+            stmt.setDouble(5, trainer.getPricePerSession());
+            stmt.setInt(6, trainer.getId());
+            stmt.setInt(7, trainer.getUserId());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private Trainer mapRow(ResultSet rs) throws SQLException {
         return new Trainer(
                 rs.getInt("id"),
