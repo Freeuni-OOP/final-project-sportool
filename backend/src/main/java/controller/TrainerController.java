@@ -91,6 +91,50 @@ public class TrainerController extends HttpServlet {
         objectMapper.writeValue(response.getWriter(), jsonResponse);
     }
 
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        if (!"/me".equals(request.getPathInfo())) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            objectMapper.writeValue(response.getWriter(), Map.of(
+                    "success", false,
+                    "message", "Endpoint not found."
+            ));
+            return;
+        }
+
+        Integer userId = (Integer) request.getAttribute("authenticatedUserId");
+        Map<String, Object> jsonResponse = new HashMap<>();
+
+        if (userId == null || userId <= 0) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            jsonResponse.put("success", false);
+            jsonResponse.put("message", "Authentication required.");
+            objectMapper.writeValue(response.getWriter(), jsonResponse);
+            return;
+        }
+
+        Trainer trainer = objectMapper.readValue(request.getReader(), Trainer.class);
+        String error = trainerService.updateTrainerProfile(trainer, userId);
+
+        if (error == null) {
+            Trainer updated = trainerService.getTrainerByUserId(userId);
+            response.setStatus(HttpServletResponse.SC_OK);
+            jsonResponse.put("success", true);
+            jsonResponse.put("message", "Trainer profile updated.");
+            jsonResponse.put("trainer", updated);
+        } else {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            jsonResponse.put("success", false);
+            jsonResponse.put("message", error);
+        }
+
+        objectMapper.writeValue(response.getWriter(), jsonResponse);
+    }
+
     private void handleGetMe(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Integer userId = (Integer) request.getAttribute("authenticatedUserId");
         String role = (String) request.getAttribute("authenticatedRole");
