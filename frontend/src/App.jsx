@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getStoredAuth } from './api/client.js';
 import CoachDashboard from './pages/CoachDashboard.jsx';
 import Coaches from './pages/Coaches.jsx';
 import Community from './pages/Community.jsx';
@@ -29,10 +30,15 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  const auth = getStoredAuth();
+  const isCoach = auth?.role === 'COACH';
+
   if (page === 'login') return <Login />;
   if (page === 'signup') return <SignUp />;
   if (page === 'dashboard') return <Courts />;
-  if (page === 'coach-dashboard') return <CoachDashboard />;
+  if (page === 'coach-dashboard' || (isCoach && (page === 'matches' || page === 'coaches'))) {
+    return <CoachDashboard />;
+  }
   if (page === 'matches') return <Matches />;
   if (page === 'tournaments') return <Tournaments />;
   if (page === 'coaches') return <Coaches />;
