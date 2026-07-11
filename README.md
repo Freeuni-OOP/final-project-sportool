@@ -7,7 +7,7 @@ A full-stack web application designed to connect sports enthusiasts with trainer
 
 
 ### Security and Architecture
-* **Session Management:** Server-side user state tracking and role validation (Trainer vs. Player) utilizing Java HTTP Sessions.
+* **Token-Based Authentication:** Stateless user tracking and role validation (Trainer vs. Player) managed securely via JSON Web Tokens (JWT) stored in HttpOnly cookies to protect against XSS attacks.
 * **Data Integrity:** Backend validation filters to secure data access and prevent unauthorized modifications or deletions.
 
 ## Tech Stack
